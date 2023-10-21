@@ -10,11 +10,12 @@ import {
     HomeLayout,
     Error,
 } from './pages/';
+
 import { ErrorElement } from './components';
 
 const router = createBrowserRouter([
     {
-        path: '/',
+        path: '',
         element: <HomeLayout />,
         errorElement: <Error />,
         children: [
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
                 errorElement: <ErrorElement />,
             },
             {
-                path: 'admin/users',
+                path: 'admin/customers',
                 element: <CustomersManagement />,
                 errorElement: <ErrorElement />,
             },
@@ -53,16 +54,20 @@ const router = createBrowserRouter([
                 element: <GroupsProductManagement />,
                 errorElement: <ErrorElement />,
             },
-            {
-                path: 'admin/auth/login',
-                element: <ProductsManagement />,
-                errorElement: <ErrorElement />,
-            },
         ],
+    },
+    {
+        path: 'admin/auth/login',
+        element: <ProductsManagement />,
+        errorElement: <ErrorElement />,
     },
 ]);
 function App() {
-    return <RouterProvider router={router} />;
+    return (
+        <>
+            <RouterProvider router={router} />
+        </>
+    );
 }
 
 export default App;
