@@ -14,10 +14,9 @@ const HomeLayout = () => {
             ) : (
                 <div>
                     <Header />
-
                     <div className="flex">
                         <Sidebar />
-                        <div>
+                        <div className="w-full">
                             <Outlet />
                         </div>
                     </div>

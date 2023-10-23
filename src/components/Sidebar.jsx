@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     User,
-    LayoutDashboard,
+    BarChart,
     UserSquare,
     ShoppingBasket,
     MenuSquare,
@@ -31,7 +31,7 @@ const Sidebar = () => {
     }
 
     const navlinks = [
-        { id: 1, link: 'Dashboard', icon: <LayoutDashboard />, to: '/' },
+        { id: 1, link: 'Dashboard', icon: <BarChart />, to: '/' },
         { id: 2, link: 'Users', icon: <User />, to: 'admin/users' },
         { id: 3, link: 'Customers', icon: <UserSquare />, to: 'admin/customers' },
         { id: 4, link: 'Products', icon: <ShoppingBasket />, to: 'admin/products' },
@@ -45,8 +45,7 @@ const Sidebar = () => {
             animate={isExpanded ? 'expanded' : 'nonexpanded'}
             variants={variants}
             className={
-                'py-10 h-screen flex flex-col border border-r-1 bg-[#FDFDFD] relative' +
-                (isExpanded ? ' px-10' : ' px-6')
+                'py-10  flex flex-col border border-r-1 bg-[#FDFDFD] relative' + (isExpanded ? ' px-10' : ' px-6')
             }
         >
             <div
