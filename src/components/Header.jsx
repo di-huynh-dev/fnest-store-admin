@@ -10,7 +10,10 @@ const Header = () => {
                     <div className="form-control">
                         <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto" />
                     </div>
-                    <div className="dropdown dropdown-end">
+                    <div>
+                        <h1>Login</h1>
+                    </div>
+                    {/* <div className="dropdown dropdown-end">
                         <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                             <div className="w-10 rounded-full">
                                 <img src="https://cdn5.vectorstock.com/i/1000x1000/51/99/icon-of-user-avatar-for-web-site-or-mobile-app-vector-3125199.jpg" />
@@ -33,7 +36,7 @@ const Header = () => {
                                 <a>Logout</a>
                             </li>
                         </ul>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

@@ -7,3 +7,4 @@ export { default as SalesManagement } from './SalesManagement';
 export { default as UsersManagement } from './UsersManagement';
 export { default as HomeLayout } from './HomeLayout';
 export { default as Error } from './Error';
+export { default as SignIn } from './SignIn';

@@ -9,6 +9,7 @@ import {
     UsersManagement,
     HomeLayout,
     Error,
+    SignIn,
 } from './pages/';
 
 import { ErrorElement } from './components';
@@ -58,7 +59,7 @@ const router = createBrowserRouter([
     },
     {
         path: 'admin/auth/login',
-        element: <ProductsManagement />,
+        element: <SignIn />,
         errorElement: <ErrorElement />,
     },
 ]);
