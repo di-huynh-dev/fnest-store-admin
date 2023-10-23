@@ -1,11 +1,13 @@
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { BsCartCheck } from 'react-icons/bs';
 import { BiUserPlus } from 'react-icons/bi';
+import { Chart, BarChart } from '../components';
+
 const Landing = () => {
     return (
         <div className="align-element">
             <div className="flex space-x-5">
-                <div className="card card-side bg-base-100 shadow-xl">
+                <div className="card card-side bg-base-100 hover:shadow-xl ease-in-out duration-300">
                     <div className="m-3">
                         <div className="grid grid-cols-2 items-center space-x-20">
                             <div>
@@ -19,7 +21,7 @@ const Landing = () => {
                         <div>Total price</div>
                     </div>
                 </div>
-                <div className="card card-side bg-base-100 shadow-xl">
+                <div className="card card-side bg-base-100 hover:shadow-xl ease-in-out duration-300">
                     <div className="m-3">
                         <div className="grid grid-cols-2 items-center space-x-20">
                             <div>
@@ -33,7 +35,7 @@ const Landing = () => {
                         <div>Total price</div>
                     </div>
                 </div>
-                <div className="card card-side bg-base-100 shadow-xl">
+                <div className="card card-side bg-base-100 hover:shadow-xl ease-in-out duration-300">
                     <div className="m-3">
                         <div className="grid grid-cols-2 items-center space-x-20">
                             <div>
@@ -46,6 +48,18 @@ const Landing = () => {
                         </div>
                         <div>Total price</div>
                     </div>
+                </div>
+            </div>
+            <div className="flex space-x-8  py-6 w-4/5 ease-in-out  hover:shadow-xl duration-300">
+                <div className="flex flex-col rounded-md border w-full p-8 justify-center bg-white">
+                    Expenses Graph
+                    <Chart />
+                </div>
+            </div>
+            <div className="flex space-x-8 py-6 w-4/5 ease-in-out duration-300 hover:shadow-xl">
+                <div className="flex flex-col rounded-md  border w-full p-8 justify-center bg-white">
+                    Expenses Graph
+                    <BarChart />
                 </div>
             </div>
         </div>
