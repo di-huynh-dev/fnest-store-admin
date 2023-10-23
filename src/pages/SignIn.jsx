@@ -1,7 +1,15 @@
 import React from 'react';
 import Manager from '../assets/manager.jpg';
-import { Link } from 'react-router-dom';
 import Login from '../assets/Login.jpg';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import { Form, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { loginSuccess, setToken } from '../features/authSlice';
+import { useDispatch } from 'react-redux';
+import authServices from '../services/authServices';
+
 const SignIn = () => {
     const backgroundStyle = {
         backgroundImage: `url(${Manager})`, // Set the background image
@@ -9,6 +17,49 @@ const SignIn = () => {
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
     };
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    //Login by username and password
+    const handleSubmit = async (values) => {
+        try {
+            const resp = await authServices.login(values.email, values.password);
+            if (resp.messages && resp.messages.length > 0) {
+                const user = resp.data.user;
+                const role = user.role;
+                console.log(role);
+                // Check if the user has the "admin" role
+                if (role === 'ADMIN') {
+                    // User has the "admin" role, allow access
+                    dispatch(loginSuccess(user));
+                    dispatch(setToken(resp.data.accessToken));
+                    toast.success(resp.messages[0]);
+                    navigate('/');
+                } else {
+                    toast.error('You do not have permission to access this page.');
+                }
+            }
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.messages) {
+                const errorMessages = error.response.data.messages;
+                toast.error(errorMessages.join(', ')); // Display error messages from the response
+            } else {
+                toast.error('Có lỗi xảy ra.'); // Fallback error message
+            }
+        }
+    };
+    const formik = useFormik({
+        initialValues: {
+            email: '',
+            password: '',
+        },
+        validationSchema: Yup.object({
+            email: Yup.string().required('Vui lòng nhập thông tin!'),
+            password: Yup.string().required('Vui lòng nhập thông tin!'),
+        }),
+        onSubmit: handleSubmit,
+    });
     return (
         <div className="flex items-center justify-center h-screen" style={backgroundStyle}>
             <div className="rounded-2xl border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -27,13 +78,18 @@ const SignIn = () => {
                                 Hệ thống quản lý{' '}
                             </span>
                             <span className="mb-1.5 block font-medium text-center text-lg">Đăng nhập tài khoản </span>
-                            <form>
+                            <Form method="post" onSubmit={formik.handleSubmit}>
                                 <div className="mb-4">
-                                    <label className="mb-2.5 block font-medium text-black dark:text-white">Email</label>
+                                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                                        Username
+                                    </label>
                                     <div className="relative">
                                         <input
-                                            type="email"
-                                            placeholder="Enter your email"
+                                            type="text"
+                                            placeholder="Enter your username"
+                                            name="email"
+                                            value={formik.values.email}
+                                            onChange={formik.handleChange}
                                             className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                         />
 
@@ -56,15 +112,20 @@ const SignIn = () => {
                                         </span>
                                     </div>
                                 </div>
-
+                                {formik.errors.email && (
+                                    <p className="text-error text-sm p-1"> {formik.errors.email}</p>
+                                )}
                                 <div className="mb-6">
                                     <label className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Re-type Password
+                                        Password
                                     </label>
                                     <div className="relative">
                                         <input
                                             type="password"
+                                            name="password"
                                             placeholder="6+ Characters, 1 Capital letter"
+                                            value={formik.values.password}
+                                            onChange={formik.handleChange}
                                             className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                                         />
 
@@ -91,7 +152,9 @@ const SignIn = () => {
                                         </span>
                                     </div>
                                 </div>
-
+                                {formik.errors.password && (
+                                    <p className="text-error text-sm p-1"> {formik.errors.password}</p>
+                                )}
                                 <div className="mb-5">
                                     <input
                                         type="submit"
@@ -136,7 +199,7 @@ const SignIn = () => {
                                     </span>
                                     Sign in with Google
                                 </button>
-                            </form>
+                            </Form>
                         </div>
                     </div>
                 </div>
