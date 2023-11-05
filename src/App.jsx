@@ -1,7 +1,7 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import {
     CustomersManagement,
-    GroupsProductManagement,
+    CategoriesManagement,
     Landing,
     OrdersManagement,
     ProductsManagement,
@@ -10,6 +10,8 @@ import {
     HomeLayout,
     Error,
     SignIn,
+    CollectionsManagement,
+    RoomsManagement,
 } from './pages/';
 
 import { ErrorElement } from './components';
@@ -51,8 +53,18 @@ const router = createBrowserRouter([
                 errorElement: <ErrorElement />,
             },
             {
-                path: 'admin/groups',
-                element: <GroupsProductManagement />,
+                path: 'admin/categories',
+                element: <CategoriesManagement />,
+                errorElement: <ErrorElement />,
+            },
+            {
+                path: 'admin/collections',
+                element: <CollectionsManagement />,
+                errorElement: <ErrorElement />,
+            },
+            {
+                path: 'admin/rooms',
+                element: <RoomsManagement />,
                 errorElement: <ErrorElement />,
             },
         ],

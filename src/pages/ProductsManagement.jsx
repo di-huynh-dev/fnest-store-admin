@@ -1,5 +1,5 @@
 const ProductsManagement = () => {
-    return <div className="text-xl">ProductsManagement</div>;
+    return <div className="align-element">ProductsManagement</div>;
 };
 
 export default ProductsManagement;

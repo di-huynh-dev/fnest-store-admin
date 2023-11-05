@@ -1,8 +1,32 @@
 import React from 'react';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-const data = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+export const options = {
+    responsive: true,
+    tension: 0.4,
+    plugins: {
+        legend: {
+            position: 'top',
+        },
+    },
+};
+
+const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+
+export const data = {
+    labels,
     datasets: [
         {
             label: 'Expenses',
@@ -13,18 +37,6 @@ const data = {
     ],
 };
 
-const options = {
-    responsive: true,
-    tension: 0.4,
-    plugins: {
-        legend: {
-            position: 'top',
-        },
-    },
-};
-
-function App() {
-    return <Line data={data} options={options} />;
+export default function App() {
+    return <Line options={options} data={data} />;
 }
-
-export default App;
