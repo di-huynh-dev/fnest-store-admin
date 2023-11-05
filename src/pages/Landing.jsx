@@ -5,7 +5,7 @@ import { Chart, BarChart } from '../components';
 
 const Landing = () => {
     return (
-        <div className="align-element">
+        <div className="m-20">
             <div className="flex space-x-5">
                 <div className="card card-side bg-base-100 hover:shadow-xl ease-in-out duration-300">
                     <div className="m-3">
@@ -50,16 +50,18 @@ const Landing = () => {
                     </div>
                 </div>
             </div>
-            <div className="flex space-x-8  py-6 w-4/5 ease-in-out  hover:shadow-xl duration-300">
-                <div className="flex flex-col rounded-md border w-full p-8 justify-center bg-white">
-                    Expenses Graph
-                    <Chart />
+            <div className="">
+                <div className="flex space-x-8  py-6 w-4/5 ease-in-out  hover:shadow-xl duration-300">
+                    <div className="flex flex-col rounded-md border w-full p-8 justify-center bg-white">
+                        Expenses Graph
+                        <Chart />
+                    </div>
                 </div>
-            </div>
-            <div className="flex space-x-8 py-6 w-4/5 ease-in-out duration-300 hover:shadow-xl">
-                <div className="flex flex-col rounded-md  border w-full p-8 justify-center bg-white">
-                    Expenses Graph
-                    <BarChart />
+                <div className="flex space-x-8 py-6 w-4/5 ease-in-out duration-300 hover:shadow-xl">
+                    <div className="flex flex-col rounded-md  border w-full p-8 justify-center bg-white">
+                        Expenses Graph
+                        <BarChart />
+                    </div>
                 </div>
             </div>
         </div>

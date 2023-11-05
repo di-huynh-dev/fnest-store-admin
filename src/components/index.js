@@ -4,3 +4,5 @@ export { default as Loading } from './Loading';
 export { default as Sidebar } from './Sidebar';
 export { default as Chart } from './Chart';
 export { default as BarChart } from './BarChart';
+export { default as FormInput } from './FormInput';
+export { default as SubmitButton } from './SubmitButton';

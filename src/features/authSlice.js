@@ -21,6 +21,7 @@ const authSlice = createSlice({
             state.login.token = action.payload;
         },
         logOutSuccess: (state) => {
+            state.login.token = null;
             state.login.isFetching = false;
             state.login.currentUser = null;
             state.login.error = false;

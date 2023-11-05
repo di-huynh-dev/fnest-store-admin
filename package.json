@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.7",
-    "@syncfusion/ej2-react-grids": "^23.1.41",
+    "@syncfusion/ej2-react-grids": "^23.1.42",
     "@tanstack/react-query": "^4.32.6",
     "@tanstack/react-query-devtools": "^4.32.6",
     "axios": "^1.4.0",
@@ -22,6 +22,7 @@
     "lucide-react": "^0.288.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
+    "react-data-table-component": "^7.5.4",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
     "react-redux": "^8.1.3",
