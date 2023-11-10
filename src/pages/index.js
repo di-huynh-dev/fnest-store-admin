@@ -10,3 +10,6 @@ export { default as Error } from './Error';
 export { default as SignIn } from './SignIn';
 export { default as RoomsManagement } from './RoomsManagement';
 export { default as CollectionsManagement } from './CollectionsManagement';
+export { default as DiscountsManagement } from './DiscountsManagement';
+export { default as NewsManagement } from './NewsManagement';
+export { default as FeedbacksManagement } from './FeedbacksManagement';

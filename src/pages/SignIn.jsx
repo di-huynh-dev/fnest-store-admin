@@ -66,9 +66,7 @@ const SignIn = () => {
                 <div className="flex flex-wrap items-center">
                     <div className="hidden w-full xl:block xl:w-1/2">
                         <div className="py-17.5 px-26 text-center">
-                            <Link className="m-10 inline-block" to="/">
-                                <img className="hidden dark:block w-[600px]" src={Login} alt="Logo" />
-                            </Link>
+                            <img className="dark:block w-[600px]" src={Login} alt="Logo" />
                         </div>
                     </div>
 

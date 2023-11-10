@@ -7,15 +7,19 @@ import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { toast } from 'react-toastify';
 import roomServices from '../services/roomServices';
-import { useSelector } from 'react-redux';
 import { BsSearchHeart } from 'react-icons/bs';
 import PreviewImage from '../utils/helpers';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { getAllRoomsSuccess } from '../features/roomSlice';
 
 const RoomsManagement = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const token = useSelector((state) => state.auth.login?.token);
 
-    const [data, setData] = useState([]);
+    const token = useSelector((state) => state.auth.login?.token);
+    const data = useSelector((state) => state.room.room?.currentRoom);
+
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [idRoom, setIdRoom] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +31,6 @@ const RoomsManagement = () => {
         (item) => item.name && item.name.toLowerCase().includes(filterText.toLowerCase()),
     );
 
-    //Handle Search
     const subHeaderComponentMemo = useMemo(() => {
         const handleClear = () => {
             if (filterText) {
@@ -80,7 +83,7 @@ const RoomsManagement = () => {
             const getCollections = async () => {
                 try {
                     const resp = await roomServices.getAllRooms(token);
-                    setData(resp.data);
+                    dispatch(getAllRoomsSuccess(resp.data));
                 } catch (error) {
                     console.log(error);
                 }
@@ -104,7 +107,7 @@ const RoomsManagement = () => {
             if (resp.messages && resp.messages.length > 0) {
                 setIsLoading(false);
                 const updatedData = await roomServices.getAllRooms(token);
-                setData(updatedData.data);
+                dispatch(getAllRoomsSuccess(updatedData.data));
                 toast.success(resp.messages[0]);
             }
         } catch (error) {
@@ -133,7 +136,7 @@ const RoomsManagement = () => {
                         toast.success(resp.messages[0]);
                         setIsLoading(false);
                         const updatedData = await roomServices.getAllRooms(token);
-                        setData(updatedData.data);
+                        dispatch(getAllRoomsSuccess(updatedData.data));
                     }
                 } catch (error) {
                     if (error.response && error.response.data && error.response.data.messages) {
@@ -157,7 +160,7 @@ const RoomsManagement = () => {
                     setIsLoading(false);
                     toast.success(resp.messages[0]);
                     const updatedData = await roomServices.getAllRooms(token);
-                    setData(updatedData.data);
+                    dispatch(getAllRoomsSuccess(updatedData.data));
                 }
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.messages) {
@@ -236,7 +239,7 @@ const RoomsManagement = () => {
                         >
                             X
                         </div>
-                        <div className="flex items-center text-center space-x-10">
+                        <div className="text-center space-x-10">
                             <div>
                                 <FormInput
                                     type="text"

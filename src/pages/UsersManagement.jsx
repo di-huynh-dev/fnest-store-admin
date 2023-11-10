@@ -3,6 +3,8 @@ import { SortAsc, FolderEditIcon, TrashIcon } from 'lucide-react';
 import customerServices from '../services/cumstomerServices';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { BsSearchHeart } from 'react-icons/bs';
+import { useMemo } from 'react';
 
 const columns = [
     {
@@ -82,6 +84,59 @@ const UsersManagement = () => {
     const token = useSelector((state) => state.auth.login?.token);
     const [data, setData] = useState([]);
 
+    //Search
+    const [filterText, setFilterText] = useState('');
+    const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+
+    const filteredItems = data.filter(
+        (item) =>
+            item.username.toLowerCase().includes(filterText.toLowerCase()) ||
+            item.email.toLowerCase().includes(filterText.toLowerCase()) ||
+            item.role.toLowerCase().includes(filterText.toLowerCase()) ||
+            item.gender.toLowerCase().includes(filterText.toLowerCase()) ||
+            (item.emailConfirmed
+                ? 'Đã xác nhận'.toLowerCase().includes(filterText.toLowerCase())
+                : 'Chưa xác nhận'.toLowerCase().includes(filterText.toLowerCase())) ||
+            item.defaultAddressId.toLowerCase().includes(filterText.toLowerCase()) ||
+            item.createdAt.toLowerCase().includes(filterText.toLowerCase()),
+    );
+
+    const subHeaderComponentMemo = useMemo(() => {
+        const handleClear = () => {
+            if (filterText) {
+                setResetPaginationToggle(!resetPaginationToggle);
+                setFilterText('');
+            }
+        };
+        return (
+            <div className="grid grid-cols-2 my-2">
+                <div className="relative">
+                    <label className="input-group w-full">
+                        <input
+                            value={filterText}
+                            onChange={(e) => setFilterText(e.target.value)}
+                            placeholder="Nhập từ khóa tìm kiếm..."
+                            className="input input-bordered max-w-xs"
+                        />
+                        <span className="bg-base-200">
+                            <BsSearchHeart className="text-primary" />
+                        </span>
+                    </label>
+                </div>
+                <div className="flex items-center mx-5">
+                    <button
+                        className="btn bg-primary btn-ghost text-white"
+                        onClick={() => {
+                            setIsUpdateMode(false);
+                            document.getElementById('dialog').showModal();
+                        }}
+                    >
+                        + Thêm sản phẩm
+                    </button>
+                </div>
+            </div>
+        );
+    }, [filterText, resetPaginationToggle]);
     useEffect(() => {
         if (!token) {
             navigate('/login');
@@ -100,7 +155,7 @@ const UsersManagement = () => {
     }, []);
 
     return (
-        <div className="mx-20 my-10">
+        <div className="m-10">
             <DataTable
                 title="Danh sách người dùng hệ thống"
                 fixedHeader
@@ -109,15 +164,13 @@ const UsersManagement = () => {
                 responsive
                 pagination
                 columns={columns}
-                data={data}
-                sortIcon={<SortAsc />}
+                data={filteredItems}
                 striped
                 subHeader
-                subHeaderComponent={
-                    <>
-                        <input type="text" placeholder="Type here" className="input input-bordered w-full max-w-xs" />
-                    </>
-                }
+                expandableRows
+                paginationResetDefaultPage={resetPaginationToggle}
+                subHeaderComponent={subHeaderComponentMemo}
+                persistTableHead
             />
         </div>
     );
