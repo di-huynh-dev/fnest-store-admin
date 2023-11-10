@@ -7,14 +7,16 @@ import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { toast } from 'react-toastify';
 import collectionServices from '../services/collectionServices';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { BsSearchHeart } from 'react-icons/bs';
+import { getAllCollectionsSuccess } from '../features/collectionSlice';
 
 const CollectionSManagement = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const token = useSelector((state) => state.auth.login?.token);
 
-    const [data, setData] = useState([]);
+    const token = useSelector((state) => state.auth.login?.token);
+    const data = useSelector((state) => state.collection.collection?.currentCollection);
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [idCollection, setIdCollection] = useState(null);
 
@@ -76,7 +78,7 @@ const CollectionSManagement = () => {
             const getCollections = async () => {
                 try {
                     const resp = await collectionServices.getAllCollections(token);
-                    setData(resp.data);
+                    dispatch(getAllCollectionsSuccess(resp.data));
                 } catch (error) {
                     console.log(error);
                 }
@@ -99,7 +101,7 @@ const CollectionSManagement = () => {
             if (resp.messages && resp.messages.length > 0) {
                 toast.success(resp.messages[0]);
                 const updatedData = await collectionServices.getAllCollections(token);
-                setData(updatedData.data);
+                dispatch(getAllCollectionsSuccess(updatedData.data));
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.messages) {
@@ -121,7 +123,7 @@ const CollectionSManagement = () => {
                     toast.success(resp.messages[0]);
                     // After a successful update, fetch the latest data and update the state
                     const updatedData = await collectionServices.getAllCollections(token);
-                    setData(updatedData.data);
+                    dispatch(getAllCollectionsSuccess(updatedData.data));
                     resetForm();
                 } catch (error) {
                     if (error.response && error.response.data && error.response.data.messages) {
@@ -138,7 +140,7 @@ const CollectionSManagement = () => {
                 if (resp.messages && resp.messages.length > 0) {
                     toast.success(resp.messages[0]);
                     const updatedData = await collectionServices.getAllCollections(token);
-                    setData(updatedData.data);
+                    dispatch(getAllCollectionsSuccess(updatedData.data));
                 }
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.messages) {

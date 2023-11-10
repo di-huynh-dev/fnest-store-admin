@@ -8,21 +8,21 @@ const HomeLayout = () => {
     const isPageLoading = navigation.state === 'loading';
 
     return (
-        <>
+        <div className="">
             {isPageLoading ? (
                 <Loading />
             ) : (
                 <div>
-                    <Header />
                     <div className="flex">
                         <Sidebar />
                         <div className="w-full">
+                            <Header />
                             <Outlet />
                         </div>
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

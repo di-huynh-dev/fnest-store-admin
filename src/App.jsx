@@ -12,6 +12,9 @@ import {
     SignIn,
     CollectionsManagement,
     RoomsManagement,
+    DiscountsManagement,
+    NewsManagement,
+    FeedbacksManagement,
 } from './pages/';
 
 import { ErrorElement } from './components';
@@ -58,6 +61,11 @@ const router = createBrowserRouter([
                 errorElement: <ErrorElement />,
             },
             {
+                path: 'admin/discounts',
+                element: <DiscountsManagement />,
+                errorElement: <ErrorElement />,
+            },
+            {
                 path: 'admin/collections',
                 element: <CollectionsManagement />,
                 errorElement: <ErrorElement />,
@@ -65,6 +73,16 @@ const router = createBrowserRouter([
             {
                 path: 'admin/rooms',
                 element: <RoomsManagement />,
+                errorElement: <ErrorElement />,
+            },
+            {
+                path: 'admin/news',
+                element: <NewsManagement />,
+                errorElement: <ErrorElement />,
+            },
+            {
+                path: 'admin/feedbacks',
+                element: <FeedbacksManagement />,
                 errorElement: <ErrorElement />,
             },
         ],

@@ -11,9 +11,13 @@ import {
     LucideBadgeDollarSign,
     SunSnow,
     DoorOpen,
+    BadgePercent,
+    LucideBookA,
+    MessageSquarePlus,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Logo from '../assets/logo/Logo.png';
 
 const variants = {
     expanded: { width: '15%' },
@@ -29,32 +33,39 @@ const Sidebar = () => {
             items: [{ id: 1, link: 'Dashboard', icon: <BarChart />, to: '/' }],
         },
         {
-            title: 'Users',
+            title: 'Collections & Rooms',
             items: [
-                { id: 2, link: 'Users', icon: <User />, to: 'admin/users' },
-                { id: 3, link: 'Customers', icon: <UserSquare />, to: 'admin/customers' },
+                { id: 2, link: 'Collections', icon: <SunSnow />, to: 'admin/collections' },
+                { id: 3, link: 'Rooms', icon: <DoorOpen />, to: 'admin/rooms' },
             ],
         },
+
         {
             title: 'Products',
             items: [
                 { id: 4, link: 'Products', icon: <ShoppingBasket />, to: 'admin/products' },
                 { id: 5, link: 'Categories', icon: <MenuSquare />, to: 'admin/categories' },
+                { id: 6, link: 'Discounts', icon: <BadgePercent />, to: 'admin/discounts' },
             ],
         },
         {
             title: 'Orders & Sales',
             items: [
-                { id: 6, link: 'Orders', icon: <ListOrdered />, to: 'admin/orders' },
-                { id: 7, link: 'Sales', icon: <LucideBadgeDollarSign />, to: 'admin/sales' },
+                { id: 7, link: 'Orders', icon: <ListOrdered />, to: 'admin/orders' },
+                { id: 8, link: 'Sales', icon: <LucideBadgeDollarSign />, to: 'admin/sales' },
             ],
         },
         {
-            title: 'Collections & Rooms',
+            title: 'Users',
             items: [
-                { id: 8, link: 'Collections', icon: <SunSnow />, to: 'admin/collections' },
-                { id: 9, link: 'Rooms', icon: <DoorOpen />, to: 'admin/rooms' },
+                { id: 9, link: 'Users', icon: <User />, to: 'admin/users' },
+                { id: 10, link: 'Customers', icon: <UserSquare />, to: 'admin/customers' },
+                { id: 11, link: 'Feedbacks', icon: <MessageSquarePlus />, to: 'admin/feedbacks' },
             ],
+        },
+        {
+            title: 'Newsletter',
+            items: [{ id: 12, link: 'News', icon: <LucideBookA />, to: 'admin/news' }],
         },
     ];
 
@@ -66,15 +77,15 @@ const Sidebar = () => {
 
     useEffect(() => {
         if (selectedItem === null) {
-            setSelectedItem(1); // Thiết lập mặc định cho Dashboard
+            setSelectedItem(1);
         }
-    }, []); // Sử dụng mảng rỗng để đảm bảo hiệu chỉnh chỉ diễn ra 1 lần sau khi component được tạo.
+    }, []);
 
     return (
         <motion.div
             animate={isExpanded ? 'expanded' : 'nonexpanded'}
             variants={variants}
-            className={'flex flex-col border border-r-1 bg-[#FDFDFD] relative' + (isExpanded ? ' p-8' : ' p-6')}
+            className={'flex flex-col border border-r-1 bg-[#FDFDFD] relative' + (isExpanded ? ' px-8 py-4' : ' p-6')}
         >
             <div
                 onClick={() => setIsExpanded(!isExpanded)}
@@ -82,8 +93,12 @@ const Sidebar = () => {
             >
                 {isExpanded ? <ArrowLeft className="w-10 text-white" /> : <ArrowRight className="w-10 text-white" />}
             </div>
-
-            <div className="flex flex-col space-y-10">
+            <div className="">
+                <div className="mx-10">
+                    <img src={Logo} alt="" className="w-[100px]" />
+                </div>
+            </div>
+            <div className="flex flex-col space-y-3">
                 {navlinks.map((group) => (
                     <div key={group.title}>
                         {isExpanded && <div className="text-sm font-semibold text-gray-600 p-2">{group.title}</div>}
@@ -92,7 +107,7 @@ const Sidebar = () => {
                                 key={nav.id}
                                 to={nav.to}
                                 className={`nav-links w-full rounded-lg  ${
-                                    selectedItem === nav.id ? 'bg-primary text-white' : ''
+                                    selectedItem === nav.id ? 'bg-secondary text-white' : ''
                                 }`}
                                 onClick={() => handleLinkClick(nav.id)}
                             >

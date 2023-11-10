@@ -1,17 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function PreviewImage({ file }) {
-    const [preview, setPreview] = useState({});
-    if (file) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-            setPreview(reader.result);
-        };
-    }
+export default function PreviewImage({ files }) {
+    const [previews, setPreviews] = useState([]);
+
+    useEffect(() => {
+        if (files && files.length > 0) {
+            const previewUrls = files.map((file, index) => ({
+                url: URL.createObjectURL(file),
+                name: file.name,
+                id: index,
+            }));
+            setPreviews(previewUrls);
+        }
+    }, [files]);
+
     return (
         <div>
-            <img src={preview} style={{ width: '300px' }} />
+            {previews.map((preview) => (
+                <div key={preview.id} className="image-preview">
+                    <img src={preview.url} alt={preview.name} style={{ width: '300px' }} />
+                    <p>{preview.name}</p>
+                </div>
+            ))}
         </div>
     );
 }

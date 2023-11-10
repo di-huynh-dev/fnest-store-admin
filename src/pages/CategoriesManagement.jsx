@@ -8,11 +8,15 @@ import { toast } from 'react-toastify';
 import categoryServices from '../services/categoryServices';
 import roomServices from '../services/roomServices';
 import { FolderEdit, Trash } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import collectionSlice from '../features/collectionSlice';
+import { getAllCategorysSuccess } from '../features/categorySlice';
 import { BsSearchHeart } from 'react-icons/bs';
 import PreviewImage from '../utils/helpers';
 
 const CategoriesManagement = () => {
+    const dispatch = useDispatch();
+
     const token = useSelector((state) => state.auth.login?.token);
     const [data, setData] = useState([]);
     const [rooms, setRooms] = useState([]);
@@ -103,6 +107,7 @@ const CategoriesManagement = () => {
             const getCollections = async () => {
                 try {
                     const respCate = await categoryServices.getAllCategories(token);
+                    dispatch(getAllCategorysSuccess(respCate.data));
                     const respRoom = await roomServices.getAllRooms(token);
                     setData(respCate.data);
                     setRooms(respRoom.data);
