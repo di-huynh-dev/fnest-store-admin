@@ -43,8 +43,8 @@ const Sidebar = () => {
         {
             title: 'Products',
             items: [
-                { id: 4, link: 'Products', icon: <ShoppingBasket />, to: 'admin/products' },
-                { id: 5, link: 'Categories', icon: <MenuSquare />, to: 'admin/categories' },
+                { id: 4, link: 'Categories', icon: <MenuSquare />, to: 'admin/categories' },
+                { id: 5, link: 'Products', icon: <ShoppingBasket />, to: 'admin/products' },
                 { id: 6, link: 'Discounts', icon: <BadgePercent />, to: 'admin/discounts' },
             ],
         },
@@ -85,7 +85,9 @@ const Sidebar = () => {
         <motion.div
             animate={isExpanded ? 'expanded' : 'nonexpanded'}
             variants={variants}
-            className={'flex flex-col border border-r-1 bg-[#FDFDFD] relative' + (isExpanded ? ' px-8 py-4' : ' p-6')}
+            className={
+                'flex flex-col border border-r-1 fixed sidebar bg-[#FDFDFD] ' + (isExpanded ? ' px-8 py-4' : ' p-6 ')
+            }
         >
             <div
                 onClick={() => setIsExpanded(!isExpanded)}
@@ -93,7 +95,7 @@ const Sidebar = () => {
             >
                 {isExpanded ? <ArrowLeft className="w-10 text-white" /> : <ArrowRight className="w-10 text-white" />}
             </div>
-            <div className="">
+            <div className="mb-6">
                 <div className="mx-10">
                     <img src={Logo} alt="" className="w-[100px]" />
                 </div>

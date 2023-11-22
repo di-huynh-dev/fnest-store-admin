@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
-import { SubmitButton, FormInput } from '../components';
+import { SubmitButton, FormInput, Loading } from '../components';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -9,7 +9,6 @@ import categoryServices from '../services/categoryServices';
 import roomServices from '../services/roomServices';
 import { FolderEdit, Trash } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import collectionSlice from '../features/collectionSlice';
 import { getAllCategorysSuccess } from '../features/categorySlice';
 import { BsSearchHeart } from 'react-icons/bs';
 import PreviewImage from '../utils/helpers';
@@ -22,6 +21,7 @@ const CategoriesManagement = () => {
     const [rooms, setRooms] = useState([]);
     const [selectedRoomId, setSelectedRoomId] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [idCollection, setIdCollection] = useState(null);
     const [filterText, setFilterText] = useState('');
@@ -73,6 +73,11 @@ const CategoriesManagement = () => {
         setIsUpdateMode(false);
     };
 
+    const closeDialog = () => {
+        document.getElementById('dialog').close();
+        resetForm();
+    };
+
     const handleUpdate = (id) => {
         setSelectedCategoryId(id);
         setIsUpdateMode(true);
@@ -83,11 +88,13 @@ const CategoriesManagement = () => {
 
     // Define handleDelete function
     const handleDelete = async (id) => {
+        setIsLoading(true);
         try {
             const resp = await categoryServices.deleteCategory(token, id);
+            setIsLoading(false);
             if (resp.messages && resp.messages.length > 0) {
                 toast.success(resp.messages[0]);
-                const updatedData = await categoryServices.getAllCategories(token);
+                const updatedData = await categoryServices.getAllCategories();
                 setData(updatedData.data);
             }
         } catch (error) {
@@ -102,26 +109,26 @@ const CategoriesManagement = () => {
 
     useEffect(() => {
         if (!token) {
-            navigate('/login');
+            navigate('/admin/auth/login');
         } else {
-            const getCollections = async () => {
+            const getCategories = async () => {
                 try {
-                    const respCate = await categoryServices.getAllCategories(token);
+                    const respCate = await categoryServices.getAllCategories();
+                    const respRoom = await roomServices.getAllRooms();
                     dispatch(getAllCategorysSuccess(respCate.data));
-                    const respRoom = await roomServices.getAllRooms(token);
                     setData(respCate.data);
                     setRooms(respRoom.data);
-                    console.log(rooms);
                 } catch (error) {
                     console.log(error);
                 }
             };
-            getCollections();
+            getCategories();
         }
     }, [token, navigate]);
 
     // Form submission handler
     const handleSubmit = async (values) => {
+        setIsLoading(true);
         if (isUpdateMode) {
             if (selectedCategoryId) {
                 try {
@@ -130,12 +137,14 @@ const CategoriesManagement = () => {
                     formData.append('image', values.file);
 
                     const resp = await categoryServices.updateCategory(token, selectedCategoryId, formData);
-                    document.getElementById('dialog').close();
+
                     toast.success(resp.messages[0]);
+                    closeDialog();
+
                     // After a successful update, fetch the latest data and update the state
-                    const updatedData = await categoryServices.getAllCategories(token);
+                    const updatedData = await categoryServices.getAllCategories();
+                    setIsLoading(false);
                     setData(updatedData.data);
-                    resetForm();
                 } catch (error) {
                     if (error.response && error.response.data && error.response.data.messages) {
                         const errorMessages = error.response.data.messages;
@@ -147,6 +156,7 @@ const CategoriesManagement = () => {
             }
         } else {
             try {
+                closeDialog();
                 const formData = new FormData();
                 formData.append('name', values.name);
                 formData.append('image', values.file);
@@ -155,8 +165,9 @@ const CategoriesManagement = () => {
                 const resp = await categoryServices.addCategory(token, formData);
                 if (resp.messages && resp.messages.length > 0) {
                     toast.success(resp.messages[0]);
-                    const updatedData = await categoryServices.getAllCategories(token);
+                    const updatedData = await categoryServices.getAllCategories();
                     setData(updatedData.data);
+                    setIsLoading(false);
                 }
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.messages) {
@@ -225,17 +236,12 @@ const CategoriesManagement = () => {
 
     return (
         <div className="mx-20 my-10">
+            {isLoading ? <Loading></Loading> : <></>}
             <dialog id="dialog" className="modal">
                 <div className="modal-box max-w-2xl">
                     <h3 className="font-bold text-2xl text-center">Danh mục sản phẩm</h3>
                     <form className="my-2" onSubmit={formik.handleSubmit}>
-                        <div
-                            onClick={() => {
-                                document.getElementById('dialog').close();
-                                resetForm;
-                            }}
-                            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                        >
+                        <div onClick={closeDialog} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                             X
                         </div>
                         <div className=" space-x-10">
@@ -302,6 +308,11 @@ const CategoriesManagement = () => {
                 paginationResetDefaultPage={resetPaginationToggle}
                 subHeaderComponent={subHeaderComponentMemo}
                 persistTableHead
+                customStyles={{
+                    table: {
+                        fontSize: '30px',
+                    },
+                }}
             />
         </div>
     );

@@ -1,15 +1,9 @@
 import axiosClient from '../utils/axiosClient';
 
 const categoryServices = {
-    getAllCategories(accessToken) {
-        const url = '/admin/category';
-        return axiosClient.get(url, {
-            headers: {
-                accept: 'application/json',
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
+    getAllCategories() {
+        const url = '/category';
+        return axiosClient.get(url);
     },
     addCategory(accessToken, formData) {
         const url = `/admin/category`;

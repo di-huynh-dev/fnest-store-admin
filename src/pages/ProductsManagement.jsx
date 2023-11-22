@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
-import { SubmitButton, FormInput } from '../components';
+import { SubmitButton, FormInput, Loading } from '../components';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -80,8 +80,10 @@ const ProductsManagement = () => {
 
     // Define handleDelete function
     const handleDelete = async (id) => {
+        setIsLoading(true);
         try {
             const resp = await productServices.deleteProduct(token, id);
+            setIsLoading(false);
             if (resp.messages && resp.messages.length > 0) {
                 toast.success(resp.messages[0]);
                 const updatedData = await productServices.getAllProducts(token);
@@ -99,7 +101,7 @@ const ProductsManagement = () => {
 
     useEffect(() => {
         if (!token) {
-            navigate('/login');
+            navigate('/admin/auth/login');
         } else {
             const getProducts = async () => {
                 try {
@@ -139,7 +141,9 @@ const ProductsManagement = () => {
                 }
             }
         } else {
+            setIsLoading(true);
             try {
+                document.getElementById('dialog').close();
                 const productInfo = {
                     name: values.name,
                     price: values.price,
@@ -165,6 +169,7 @@ const ProductsManagement = () => {
                     formData.append('images', values.images[i]);
                 }
                 const resp = await productServices.addProduct(token, formData);
+                setIsLoading(false);
 
                 if (resp.messages && resp.messages.length > 0) {
                     toast.success(resp.messages[0]);
@@ -322,6 +327,15 @@ const ProductsManagement = () => {
 
     return (
         <div className="m-10">
+            <div>
+                {isLoading ? (
+                    <>
+                        <Loading></Loading>
+                    </>
+                ) : (
+                    <></>
+                )}
+            </div>
             <dialog id="dialog" className="modal">
                 <div className="modal-box max-w-6xl">
                     <h3 className="font-bold text-2xl text-center">Thêm Sản phẩm mới</h3>
@@ -482,7 +496,7 @@ const ProductsManagement = () => {
                                 {formik.errors.images && (
                                     <p className="text-error text-sm p-1">{formik.errors.images}</p>
                                 )}
-                                {formik.values.images && <PreviewImage file={formik.values.images} />}
+                                {/* {formik.values.images && <PreviewImage file={formik.values.images} />} */}
                             </div>
                         </div>
                         <div className="flex items-center mt-3 text-center justify-center">

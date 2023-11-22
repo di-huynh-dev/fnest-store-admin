@@ -15,9 +15,9 @@ const Header = () => {
     };
     const user = useSelector((state) => state.auth.login?.currentUser);
     return (
-        <div>
-            <div className="navbar bg-base-100">
-                <div className="flex-1 ml-10">
+        <div className="fixed md:static bg-main-bg dark:bg-main-dark-bg w-full">
+            <div className="flex justify-between p-2 md:ml-6 md:mr-6 relative">
+                <div>
                     <div className="form-control">
                         <div className="input-group">
                             <input type="text" placeholder="Search…" className="input input-bordered" />
@@ -40,56 +40,32 @@ const Header = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex-none gap-2">
-                    <div className="">
-                        {/* THEME SETUP */}
-                        <label className="swap swap-rotate">
-                            <input type="checkbox" />
-                            {/* sun icon*/}
-                            <BsSunFill className="swap-on h-4 w-4" />
-                            {/* moon icon*/}
-                            <BsMoonFill className="swap-off h-4 w-4" />
-                        </label>
-                        <NavLink to="/cart" className="btn btn-ghost btn-circle btn-md ml-4">
-                            <div className="indicator">
-                                <BsFillBellFill className="h-6 w-6" />
-                                <span className="badge badge-sm badge-primary indicator-item text-white">0</span>
-                            </div>
-                        </NavLink>
-                    </div>
-                    <div className="mr-4 flex">
-                        {user ? (
-                            <div className="dropdown dropdown-hover">
-                                <label tabIndex={0} className="flex justify-center items-center space-x-1 ">
-                                    <div className="avatar online">
-                                        <div className="w-10 rounded-full">
-                                            <img src="https://cdn5.vectorstock.com/i/1000x1000/51/99/icon-of-user-avatar-for-web-site-or-mobile-app-vector-3125199.jpg" />
-                                        </div>
+                <div className="flex">
+                    {user ? (
+                        <div className="dropdown dropdown-hover">
+                            <label tabIndex={0} className="flex justify-center items-center space-x-1 ">
+                                <div className="avatar online">
+                                    <div className="w-10 rounded-full">
+                                        <img src="https://cdn5.vectorstock.com/i/1000x1000/51/99/icon-of-user-avatar-for-web-site-or-mobile-app-vector-3125199.jpg" />
                                     </div>
-                                    <div>
-                                        <h3 className="font-bold"> Huỳnh Tiến Dĩ</h3>
-                                        <span>{user?.username}</span>
-                                    </div>
-                                </label>
-                                <ul
-                                    tabIndex={0}
-                                    className="dropdown-content z-[2] menu shadow bg-base-100 rounded-box w-52"
-                                >
-                                    <li>
-                                        <NavLink to="/profile">Quản lý tài khoản</NavLink>
-                                    </li>
-
-                                    <li>
-                                        <p onClick={handleLogout}>Đăng xuất</p>
-                                    </li>
-                                </ul>
-                            </div>
-                        ) : (
-                            <div>
-                                <Link to="/admin/auth/login">Login</Link>
-                            </div>
-                        )}
-                    </div>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold"> {user?.username}</h3>
+                                    <span
+                                        onClick={() => {
+                                            handleLogout();
+                                        }}
+                                    >
+                                        Đăng xuất
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+                    ) : (
+                        <div>
+                            <Link to="/admin/auth/login">Login</Link>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
