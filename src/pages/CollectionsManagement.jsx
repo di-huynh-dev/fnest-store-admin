@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import { SortAsc, FolderEdit, Trash } from 'lucide-react';
-import { FormInput, SubmitButton } from '../components';
+import { FormInput, SubmitButton, Loading } from '../components';
 import { Form, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -10,14 +10,16 @@ import collectionServices from '../services/collectionServices';
 import { useSelector, useDispatch } from 'react-redux';
 import { BsSearchHeart } from 'react-icons/bs';
 import { getAllCollectionsSuccess } from '../features/collectionSlice';
+import PreviewImage from '../utils/helpers';
 
 const CollectionSManagement = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const token = useSelector((state) => state.auth.login?.token);
-    const data = useSelector((state) => state.collection.collection?.currentCollection);
+    const [data, setData] = useState([]);
     const [isUpdateMode, setIsUpdateMode] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [idCollection, setIdCollection] = useState(null);
 
     //Search
@@ -65,20 +67,26 @@ const CollectionSManagement = () => {
         );
     }, [filterText, resetPaginationToggle]);
 
+    const closeDialog = () => {
+        document.getElementById('dialog').close();
+    };
+
     const resetForm = () => {
         setIdCollection(null);
         setIsUpdateMode(false);
+        formik.resetForm();
     };
 
     //Get
     useEffect(() => {
         if (!token) {
-            navigate('/login');
+            navigate('/admin/auth/login');
         } else {
             const getCollections = async () => {
                 try {
-                    const resp = await collectionServices.getAllCollections(token);
+                    const resp = await collectionServices.getAllCollections();
                     dispatch(getAllCollectionsSuccess(resp.data));
+                    setData(resp.data);
                 } catch (error) {
                     console.log(error);
                 }
@@ -96,12 +104,16 @@ const CollectionSManagement = () => {
 
     // Define handleDelete function
     const handleDelete = async (id) => {
+        setIsLoading(true);
         try {
             const resp = await collectionServices.deleteCollection(token, id);
+            setIsLoading(false);
             if (resp.messages && resp.messages.length > 0) {
                 toast.success(resp.messages[0]);
-                const updatedData = await collectionServices.getAllCollections(token);
+                const updatedData = await collectionServices.getAllCollections();
                 dispatch(getAllCollectionsSuccess(updatedData.data));
+                resetForm();
+                setData(updatedData.data);
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.messages) {
@@ -115,17 +127,27 @@ const CollectionSManagement = () => {
 
     // Form submission handler
     const handleSubmit = async (values) => {
+        setIsLoading(true);
         if (isUpdateMode) {
             if (idCollection) {
                 try {
-                    const resp = await collectionServices.updateCollection(token, idCollection, values.name);
-                    document.getElementById('dialog').close();
+                    closeDialog();
+
+                    const formData = new FormData();
+                    formData.append('name', values.name);
+                    formData.append('description', values.description);
+                    formData.append('image', values.file);
+                    const resp = await collectionServices.updateCollection(token, idCollection, formData);
+
+                    setIsLoading(false);
                     toast.success(resp.messages[0]);
                     // After a successful update, fetch the latest data and update the state
-                    const updatedData = await collectionServices.getAllCollections(token);
+                    const updatedData = await collectionServices.getAllCollections();
                     dispatch(getAllCollectionsSuccess(updatedData.data));
+                    setData(updatedData.data);
                     resetForm();
                 } catch (error) {
+                    setIsLoading(false);
                     if (error.response && error.response.data && error.response.data.messages) {
                         const errorMessages = error.response.data.messages;
                         toast.error(errorMessages.join(', '));
@@ -136,13 +158,22 @@ const CollectionSManagement = () => {
             }
         } else {
             try {
-                const resp = await collectionServices.addCollection(token, values.name);
+                closeDialog();
+                const formData = new FormData();
+                formData.append('name', values.name);
+                formData.append('description', values.description);
+                formData.append('image', values.file);
+
+                const resp = await collectionServices.addCollection(token, formData);
+                setIsLoading(false);
                 if (resp.messages && resp.messages.length > 0) {
                     toast.success(resp.messages[0]);
                     const updatedData = await collectionServices.getAllCollections(token);
                     dispatch(getAllCollectionsSuccess(updatedData.data));
+                    setData(updatedData.data);
                 }
             } catch (error) {
+                setIsLoading(false);
                 if (error.response && error.response.data && error.response.data.messages) {
                     const errorMessages = error.response.data.messages;
                     toast.error(errorMessages.join(', '));
@@ -157,9 +188,13 @@ const CollectionSManagement = () => {
     const formik = useFormik({
         initialValues: {
             name: '',
+            description: '',
+            file: '',
         },
         validationSchema: Yup.object({
             name: Yup.string().required('Vui lòng nhập thông tin!'),
+            description: Yup.string().required('Vui lòng nhập thông tin!'),
+            file: Yup.mixed().required('Vui lòng tải lên hình ảnh!'),
         }),
         onSubmit: handleSubmit,
     });
@@ -171,8 +206,18 @@ const CollectionSManagement = () => {
             sortable: true,
         },
         {
+            name: 'Hình ảnh',
+            selector: (row) => <img src={row.imageUrl} className="w-14 h-14 my-2"></img>,
+            sortable: false,
+        },
+        {
             name: 'Tên bộ sưu tập',
             selector: (row) => <div className="text-sm">{row.name}</div>,
+            sortable: false,
+        },
+        {
+            name: 'Mô tả',
+            selector: (row) => <div className="text-sm">{row.description}</div>,
             sortable: false,
         },
         {
@@ -196,21 +241,16 @@ const CollectionSManagement = () => {
     ];
 
     return (
-        <div className="mx-20 my-10">
+        <div className="mx-10 my-10">
+            {isLoading ? <Loading></Loading> : <></>}
             <dialog id="dialog" className="modal">
                 <div className="modal-box max-w-2xl">
                     <h3 className="font-bold text-2xl text-center">Bộ sưu tập</h3>
                     <form className="my-2" onSubmit={formik.handleSubmit}>
-                        <div
-                            onClick={() => {
-                                document.getElementById('dialog').close();
-                                resetForm;
-                            }}
-                            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                        >
+                        <div onClick={closeDialog} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                             X
                         </div>
-                        <div className="flex items-center text-center space-x-10">
+                        <div className="text-center space-x-10">
                             <div>
                                 <FormInput
                                     type="text"
@@ -222,6 +262,24 @@ const CollectionSManagement = () => {
                                 {formik.errors.name && (
                                     <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
                                 )}
+                                <FormInput
+                                    type="text"
+                                    label="Mô tả"
+                                    name="description"
+                                    placeholder="Nhập mô tả..."
+                                    onchange={formik.handleChange}
+                                />
+                                {formik.errors.description && (
+                                    <span className="text-error text-sm p-1 ">{formik.errors.description}</span>
+                                )}
+                                <FormInput
+                                    type="file"
+                                    label="Hình ảnh"
+                                    name="file"
+                                    onchange={(e) => formik.setFieldValue('file', e.target.files[0])}
+                                />
+                                {formik.errors.file && <p className="text-error text-sm p-1">{formik.errors.file}</p>}
+                                {formik.values.file && <PreviewImage file={formik.values.file} />}
                                 <div className="flex items-center mt-3 text-center justify-center">
                                     <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
                                 </div>
@@ -230,21 +288,28 @@ const CollectionSManagement = () => {
                     </form>
                 </div>
             </dialog>
-            <DataTable
-                title="QUẢN LÝ BỘ SƯU TẬP FNEST"
-                fixedHeader
-                fixedHeaderScrollHeight="550px"
-                direction="auto"
-                responsive
-                pagination
-                columns={columns}
-                data={filteredItems}
-                striped
-                subHeader
-                paginationResetDefaultPage={resetPaginationToggle}
-                subHeaderComponent={subHeaderComponentMemo}
-                persistTableHead
-            />
+            <div className="container">
+                <DataTable
+                    title="QUẢN LÝ BỘ SƯU TẬP FNEST"
+                    fixedHeader
+                    fixedHeaderScrollHeight="550px"
+                    direction="auto"
+                    responsive
+                    pagination
+                    columns={columns}
+                    data={filteredItems}
+                    striped
+                    subHeader
+                    paginationResetDefaultPage={resetPaginationToggle}
+                    subHeaderComponent={subHeaderComponentMemo}
+                    persistTableHead
+                    customStyles={{
+                        table: {
+                            fontSize: '30px',
+                        },
+                    }}
+                />
+            </div>
         </div>
     );
 };

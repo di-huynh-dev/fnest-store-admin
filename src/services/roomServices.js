@@ -1,15 +1,9 @@
 import axiosClient from '../utils/axiosClient';
 
 const roomServices = {
-    getAllRooms(accessToken) {
-        const url = '/admin/room';
-        return axiosClient.get(url, {
-            headers: {
-                accept: 'application/json',
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
+    getAllRooms() {
+        const url = '/room';
+        return axiosClient.get(url);
     },
     addRoom(accessToken, formData) {
         const url = `/admin/room`;

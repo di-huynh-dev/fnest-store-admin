@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import { FolderEdit, Trash } from 'lucide-react';
-import { FormInput, SubmitButton } from '../components';
+import { FormInput, SubmitButton, Loading } from '../components';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -18,15 +18,35 @@ const RoomsManagement = () => {
     const navigate = useNavigate();
 
     const token = useSelector((state) => state.auth.login?.token);
-    const data = useSelector((state) => state.room.room?.currentRoom);
+    // const data = useSelector((state) => state.room.room?.currentRoom);
+    const [data, setData] = useState([]);
 
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [idRoom, setIdRoom] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    //Get Rooms
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/auth/login');
+        } else {
+            const getCollections = async () => {
+                try {
+                    const resp = await roomServices.getAllRooms();
+                    dispatch(getAllRoomsSuccess(resp.data));
+                    setData(resp.data);
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+            getCollections();
+        }
+    }, []);
+
     //Search
     const [filterText, setFilterText] = useState('');
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+
     const filteredItems = data.filter(
         (item) => item.name && item.name.toLowerCase().includes(filterText.toLowerCase()),
     );
@@ -69,28 +89,15 @@ const RoomsManagement = () => {
         );
     }, [filterText, resetPaginationToggle]);
 
+    const closeDialog = () => {
+        document.getElementById('dialog').close();
+    };
     //Reset Form Update and Add new
     const resetForm = () => {
         setIdRoom(null);
         setIsUpdateMode(false);
+        formik.resetForm();
     };
-
-    //Get Rooms
-    useEffect(() => {
-        if (!token) {
-            navigate('/login');
-        } else {
-            const getCollections = async () => {
-                try {
-                    const resp = await roomServices.getAllRooms(token);
-                    dispatch(getAllRoomsSuccess(resp.data));
-                } catch (error) {
-                    console.log(error);
-                }
-            };
-            getCollections();
-        }
-    }, [token, navigate]);
 
     //Update
     const handleUpdate = (id) => {
@@ -101,13 +108,14 @@ const RoomsManagement = () => {
 
     // Handle Delete
     const handleDelete = async (id) => {
+        setIsLoading(true);
         try {
-            setIsLoading(true);
             const resp = await roomServices.deleteRoom(token, id);
             if (resp.messages && resp.messages.length > 0) {
                 setIsLoading(false);
-                const updatedData = await roomServices.getAllRooms(token);
+                const updatedData = await roomServices.getAllRooms();
                 dispatch(getAllRoomsSuccess(updatedData.data));
+                setData(updatedData.data);
                 toast.success(resp.messages[0]);
             }
         } catch (error) {
@@ -123,10 +131,11 @@ const RoomsManagement = () => {
 
     // Form submission handler updates and adds new
     const handleSubmit = async (values) => {
+        setIsLoading(true);
+        closeDialog();
         if (isUpdateMode) {
             if (idRoom) {
                 try {
-                    setIsLoading(true);
                     const formData = new FormData();
                     formData.append('name', values.name);
                     formData.append('image', values.file);
@@ -135,8 +144,10 @@ const RoomsManagement = () => {
                     if (resp.messages && resp.messages.length > 0) {
                         toast.success(resp.messages[0]);
                         setIsLoading(false);
-                        const updatedData = await roomServices.getAllRooms(token);
+                        const updatedData = await roomServices.getAllRooms();
                         dispatch(getAllRoomsSuccess(updatedData.data));
+                        setData(updatedData.data);
+                        resetForm();
                     }
                 } catch (error) {
                     if (error.response && error.response.data && error.response.data.messages) {
@@ -150,7 +161,6 @@ const RoomsManagement = () => {
             }
         } else {
             try {
-                setIsLoading(true);
                 const formData = new FormData();
                 formData.append('name', values.name);
                 formData.append('image', values.file);
@@ -159,8 +169,10 @@ const RoomsManagement = () => {
                 if (resp.messages && resp.messages.length > 0) {
                     setIsLoading(false);
                     toast.success(resp.messages[0]);
-                    const updatedData = await roomServices.getAllRooms(token);
+                    const updatedData = await roomServices.getAllRooms();
                     dispatch(getAllRoomsSuccess(updatedData.data));
+                    setData(updatedData.data);
+                    resetForm();
                 }
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.messages) {
@@ -199,7 +211,7 @@ const RoomsManagement = () => {
             sortable: false,
         },
         {
-            name: 'Tên danh mục',
+            name: 'Tên phòng',
             selector: (row) => <div className="text-sm">{row.name}</div>,
             sortable: false,
         },
@@ -226,17 +238,12 @@ const RoomsManagement = () => {
 
     return (
         <div className="mx-20 my-10">
+            {isLoading ? <Loading></Loading> : <></>}
             <dialog id="dialog" className="modal">
                 <div className="modal-box max-w-2xl">
                     <h3 className="font-bold text-2xl text-center">Danh mục phòng</h3>
                     <form className="my-2" onSubmit={formik.handleSubmit}>
-                        <div
-                            onClick={() => {
-                                document.getElementById('dialog').close();
-                                resetForm;
-                            }}
-                            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                        >
+                        <div onClick={closeDialog} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                             X
                         </div>
                         <div className="text-center space-x-10">
@@ -259,9 +266,8 @@ const RoomsManagement = () => {
                                 />
                                 {formik.values.file && <PreviewImage file={formik.values.file} />}
                                 <div className="flex items-center mt-3 text-center justify-center">
-                                    <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} disabled={isLoading} />
+                                    <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} />
                                 </div>
-                                {isLoading && <div>Đang xử lý...</div>} {/* Hiển thị toast "Đang xử lý..." */}
                             </div>
                         </div>
                     </form>

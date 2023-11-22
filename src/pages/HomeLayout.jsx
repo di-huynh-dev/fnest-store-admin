@@ -4,25 +4,24 @@ import { Header, Loading, Sidebar } from '../components';
 
 const HomeLayout = () => {
     const navigation = useNavigation();
-
     const isPageLoading = navigation.state === 'loading';
 
     return (
-        <div className="">
+        <>
             {isPageLoading ? (
                 <Loading />
             ) : (
-                <div>
-                    <div className="flex">
+                <main className="">
+                    <div className="flex relative">
                         <Sidebar />
-                        <div className="w-full">
+                        <div className="min-h-screen w-full ml-[18rem]">
                             <Header />
                             <Outlet />
                         </div>
                     </div>
-                </div>
+                </main>
             )}
-        </div>
+        </>
     );
 };
 

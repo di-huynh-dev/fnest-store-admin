@@ -84,6 +84,23 @@ const UsersManagement = () => {
     const token = useSelector((state) => state.auth.login?.token);
     const [data, setData] = useState([]);
 
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/auth/login');
+        }
+        if (token) {
+            const getAllUsers = async () => {
+                try {
+                    const resp = await customerServices.getAllCumstomers(token);
+                    setData(resp.data);
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+            getAllUsers();
+        }
+    }, []);
+
     //Search
     const [filterText, setFilterText] = useState('');
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
@@ -137,22 +154,6 @@ const UsersManagement = () => {
             </div>
         );
     }, [filterText, resetPaginationToggle]);
-    useEffect(() => {
-        if (!token) {
-            navigate('/login');
-        }
-        if (token) {
-            const getAllUsers = async () => {
-                try {
-                    const resp = await customerServices.getAllCumstomers(token);
-                    setData(resp.data);
-                } catch (error) {
-                    console.log(error);
-                }
-            };
-            getAllUsers();
-        }
-    }, []);
 
     return (
         <div className="m-10">
