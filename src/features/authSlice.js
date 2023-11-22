@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
-        login: {
+        loginAdmin: {
             token: null,
             currentUser: null,
             isFetching: false,
@@ -12,19 +12,19 @@ const authSlice = createSlice({
     },
     reducers: {
         loginSuccess: (state, action) => {
-            state.login.isFetching = false;
-            state.login.currentUser = action.payload;
-            state.login.error = false;
+            state.loginAdmin.isFetching = false;
+            state.loginAdmin.currentUser = action.payload;
+            state.loginAdmin.error = false;
         },
         setToken: (state, action) => {
             // Lưu token trong trạng thái
-            state.login.token = action.payload;
+            state.loginAdmin.token = action.payload;
         },
         logOutSuccess: (state) => {
-            state.login.token = null;
-            state.login.isFetching = false;
-            state.login.currentUser = null;
-            state.login.error = false;
+            state.loginAdmin.token = null;
+            state.loginAdmin.isFetching = false;
+            state.loginAdmin.currentUser = null;
+            state.loginAdmin.error = false;
         },
     },
 });

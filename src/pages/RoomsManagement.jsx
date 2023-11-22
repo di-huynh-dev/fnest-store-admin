@@ -17,7 +17,7 @@ const RoomsManagement = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const token = useSelector((state) => state.auth.login?.token);
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
     // const data = useSelector((state) => state.room.room?.currentRoom);
     const [data, setData] = useState([]);
 

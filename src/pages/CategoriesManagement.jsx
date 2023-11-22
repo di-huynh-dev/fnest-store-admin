@@ -16,7 +16,7 @@ import PreviewImage from '../utils/helpers';
 const CategoriesManagement = () => {
     const dispatch = useDispatch();
 
-    const token = useSelector((state) => state.auth.login?.token);
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
     const [rooms, setRooms] = useState([]);
     const [selectedRoomId, setSelectedRoomId] = useState('');

@@ -16,7 +16,7 @@ const ProductsManagement = () => {
     const categoryList = useSelector((state) => state.category.category?.currentCategory);
     const collectionList = useSelector((state) => state.collection.collection?.currentCollection);
 
-    const token = useSelector((state) => state.auth.login?.token);
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState('');
