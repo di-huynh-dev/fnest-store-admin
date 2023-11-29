@@ -11,7 +11,7 @@ const HomeLayout = () => {
             {isPageLoading ? (
                 <Loading />
             ) : (
-                <main className="">
+                <main>
                     <div className="flex relative">
                         <Sidebar />
                         <div className="min-h-screen w-full ml-[18rem]">

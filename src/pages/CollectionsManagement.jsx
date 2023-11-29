@@ -75,6 +75,11 @@ const CollectionSManagement = () => {
         setIdCollection(null);
         setIsUpdateMode(false);
         formik.resetForm();
+        formik.setValues({
+            name: '',
+            description: '',
+            file: '',
+        });
     };
 
     //Get
@@ -148,6 +153,7 @@ const CollectionSManagement = () => {
                     resetForm();
                 } catch (error) {
                     setIsLoading(false);
+                    resetForm();
                     if (error.response && error.response.data && error.response.data.messages) {
                         const errorMessages = error.response.data.messages;
                         toast.error(errorMessages.join(', '));
@@ -168,12 +174,13 @@ const CollectionSManagement = () => {
                 setIsLoading(false);
                 if (resp.messages && resp.messages.length > 0) {
                     toast.success(resp.messages[0]);
-                    const updatedData = await collectionServices.getAllCollections(token);
-                    dispatch(getAllCollectionsSuccess(updatedData.data));
+                    const updatedData = await collectionServices.getAllCollections();
                     setData(updatedData.data);
+                    resetForm();
                 }
             } catch (error) {
                 setIsLoading(false);
+                resetForm();
                 if (error.response && error.response.data && error.response.data.messages) {
                     const errorMessages = error.response.data.messages;
                     toast.error(errorMessages.join(', '));
@@ -256,6 +263,7 @@ const CollectionSManagement = () => {
                                     type="text"
                                     label="Tên Bộ sưu tập"
                                     name="name"
+                                    value={formik.values.name}
                                     placeholder="Nhập tên bộ sưu tập..."
                                     onchange={formik.handleChange}
                                 />
@@ -266,6 +274,7 @@ const CollectionSManagement = () => {
                                     type="text"
                                     label="Mô tả"
                                     name="description"
+                                    value={formik.values.description}
                                     placeholder="Nhập mô tả..."
                                     onchange={formik.handleChange}
                                 />

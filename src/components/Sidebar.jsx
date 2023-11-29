@@ -18,6 +18,7 @@ import {
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../assets/logo/Logo.png';
+import { useTranslation } from 'react-i18next';
 
 const variants = {
     expanded: { width: '15%' },
@@ -26,7 +27,7 @@ const variants = {
 
 const Sidebar = () => {
     const [isExpanded, setIsExpanded] = useState(true);
-
+    const { t } = useTranslation('translation');
     const navlinks = [
         {
             title: 'Dashboard',
@@ -35,37 +36,37 @@ const Sidebar = () => {
         {
             title: 'Collections & Rooms',
             items: [
-                { id: 2, link: 'Collections', icon: <SunSnow />, to: 'admin/collections' },
-                { id: 3, link: 'Rooms', icon: <DoorOpen />, to: 'admin/rooms' },
+                { id: 2, link: t('collections'), icon: <SunSnow />, to: 'admin/collections' },
+                { id: 3, link: t('rooms'), icon: <DoorOpen />, to: 'admin/rooms' },
             ],
         },
 
         {
             title: 'Products',
             items: [
-                { id: 4, link: 'Categories', icon: <MenuSquare />, to: 'admin/categories' },
-                { id: 5, link: 'Products', icon: <ShoppingBasket />, to: 'admin/products' },
-                { id: 6, link: 'Discounts', icon: <BadgePercent />, to: 'admin/discounts' },
+                { id: 4, link: t('categories'), icon: <MenuSquare />, to: 'admin/categories' },
+                { id: 5, link: t('products'), icon: <ShoppingBasket />, to: 'admin/products' },
+                { id: 6, link: t('discounts'), icon: <BadgePercent />, to: 'admin/discounts' },
             ],
         },
         {
             title: 'Orders & Sales',
             items: [
-                { id: 7, link: 'Orders', icon: <ListOrdered />, to: 'admin/orders' },
-                { id: 8, link: 'Sales', icon: <LucideBadgeDollarSign />, to: 'admin/sales' },
+                { id: 7, link: t('orders'), icon: <ListOrdered />, to: 'admin/orders' },
+                { id: 8, link: t('sales'), icon: <LucideBadgeDollarSign />, to: 'admin/sales' },
             ],
         },
         {
             title: 'Users',
             items: [
-                { id: 9, link: 'Users', icon: <User />, to: 'admin/users' },
-                { id: 10, link: 'Customers', icon: <UserSquare />, to: 'admin/customers' },
-                { id: 11, link: 'Feedbacks', icon: <MessageSquarePlus />, to: 'admin/feedbacks' },
+                { id: 9, link: t('users'), icon: <User />, to: 'admin/users' },
+                { id: 10, link: t('customers'), icon: <UserSquare />, to: 'admin/customers' },
+                { id: 11, link: t('feedbacks'), icon: <MessageSquarePlus />, to: 'admin/feedbacks' },
             ],
         },
         {
             title: 'Newsletter',
-            items: [{ id: 12, link: 'News', icon: <LucideBookA />, to: 'admin/news' }],
+            items: [{ id: 12, link: t('news'), icon: <LucideBookA />, to: 'admin/news' }],
         },
     ];
 

@@ -1,0 +1,14 @@
+{
+    "products": "Products",
+    "customers": "Customers",
+    "users": "Users",
+    "rooms": "Rooms",
+    "orders": "Orders",
+    "sales": "Sales",
+    "discounts": "Discounts",
+    "categories": "Categories",
+    "collections": "Collections",
+    "feedbacks": "Feedbacks",
+    "news": "News",
+    "logout": "Logout"
+}
