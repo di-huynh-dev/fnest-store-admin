@@ -16,7 +16,7 @@ import PreviewImage from '../utils/helpers';
 const CategoriesManagement = () => {
     const dispatch = useDispatch();
 
-    const token = useSelector((state) => state.auth.login?.token);
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
     const [rooms, setRooms] = useState([]);
     const [selectedRoomId, setSelectedRoomId] = useState('');
@@ -71,6 +71,11 @@ const CategoriesManagement = () => {
     const resetForm = () => {
         setIdCollection(null);
         setIsUpdateMode(false);
+        formik.resetForm();
+        formik.setValues({
+            name: '',
+            file: '',
+        });
     };
 
     const closeDialog = () => {
@@ -145,7 +150,10 @@ const CategoriesManagement = () => {
                     const updatedData = await categoryServices.getAllCategories();
                     setIsLoading(false);
                     setData(updatedData.data);
+                    resetForm();
                 } catch (error) {
+                    setIsLoading(true);
+                    resetForm();
                     if (error.response && error.response.data && error.response.data.messages) {
                         const errorMessages = error.response.data.messages;
                         toast.error(errorMessages.join(', '));
@@ -163,13 +171,17 @@ const CategoriesManagement = () => {
                 formData.append('roomId', selectedRoomId);
 
                 const resp = await categoryServices.addCategory(token, formData);
+                dispatch(getAllCategorysSuccess(resp.data));
                 if (resp.messages && resp.messages.length > 0) {
                     toast.success(resp.messages[0]);
                     const updatedData = await categoryServices.getAllCategories();
                     setData(updatedData.data);
                     setIsLoading(false);
+                    resetForm();
                 }
             } catch (error) {
+                setIsLoading(false);
+                resetForm();
                 if (error.response && error.response.data && error.response.data.messages) {
                     const errorMessages = error.response.data.messages;
                     toast.error(errorMessages.join(', '));
@@ -235,7 +247,7 @@ const CategoriesManagement = () => {
     ];
 
     return (
-        <div className="mx-20 my-10">
+        <div className="mx-10 my-10">
             {isLoading ? <Loading></Loading> : <></>}
             <dialog id="dialog" className="modal">
                 <div className="modal-box max-w-2xl">
@@ -250,6 +262,7 @@ const CategoriesManagement = () => {
                                     type="text"
                                     label="Tên Danh mục"
                                     name="name"
+                                    value={formik.values.name}
                                     placeholder="Nhập tên danh muc..."
                                     onchange={formik.handleChange}
                                 />

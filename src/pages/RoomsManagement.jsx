@@ -17,7 +17,7 @@ const RoomsManagement = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const token = useSelector((state) => state.auth.login?.token);
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
     // const data = useSelector((state) => state.room.room?.currentRoom);
     const [data, setData] = useState([]);
 
@@ -97,6 +97,10 @@ const RoomsManagement = () => {
         setIdRoom(null);
         setIsUpdateMode(false);
         formik.resetForm();
+        formik.setValues({
+            name: '',
+            file: '',
+        });
     };
 
     //Update
@@ -237,7 +241,7 @@ const RoomsManagement = () => {
     ];
 
     return (
-        <div className="mx-20 my-10">
+        <div className="mx-10 my-10">
             {isLoading ? <Loading></Loading> : <></>}
             <dialog id="dialog" className="modal">
                 <div className="modal-box max-w-2xl">
@@ -253,6 +257,7 @@ const RoomsManagement = () => {
                                     label="Tên Phòng"
                                     name="name"
                                     placeholder="Nhập tên phòng..."
+                                    value={formik.values.name}
                                     onchange={formik.handleChange}
                                 />
                                 {formik.errors.name && (

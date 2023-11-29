@@ -16,7 +16,7 @@ const ProductsManagement = () => {
     const categoryList = useSelector((state) => state.category.category?.currentCategory);
     const collectionList = useSelector((state) => state.collection.collection?.currentCollection);
 
-    const token = useSelector((state) => state.auth.login?.token);
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState('');
@@ -326,20 +326,12 @@ const ProductsManagement = () => {
     ];
 
     return (
-        <div className="m-10">
-            <div>
-                {isLoading ? (
-                    <>
-                        <Loading></Loading>
-                    </>
-                ) : (
-                    <></>
-                )}
-            </div>
+        <div className="mx-10 my-10">
+            {isLoading ? <Loading></Loading> : <></>}
             <dialog id="dialog" className="modal">
                 <div className="modal-box max-w-6xl">
                     <h3 className="font-bold text-2xl text-center">Thêm Sản phẩm mới</h3>
-                    <form className="" onSubmit={formik.handleSubmit}>
+                    <form className="my-2" onSubmit={formik.handleSubmit}>
                         <div className="my-2 grid grid-cols-3 space-x-5">
                             <div
                                 onClick={() => {
@@ -505,25 +497,29 @@ const ProductsManagement = () => {
                     </form>
                 </div>
             </dialog>
-            <DataTable
-                title="QUẢN LÝ DANH MỤC SẢN PHẨM FNEST"
-                fixedHeader
-                fixedHeaderScrollHeight="550px"
-                direction="auto"
-                responsive
-                pagination
-                columns={columns}
-                data={filteredItems}
-                highlightOnHover
-                striped
-                subHeader
-                expandableRows
-                expandableRowExpanded={(row) => row.defaultExpanded}
-                expandableRowsComponent={ExpandedComponent}
-                paginationResetDefaultPage={resetPaginationToggle}
-                subHeaderComponent={subHeaderComponentMemo}
-                persistTableHead
-            />
+            <div className="container">
+                <DataTable
+                    title="QUẢN LÝ DANH MỤC SẢN PHẨM FNEST"
+                    fixedHeader
+                    fixedHeaderScrollHeight="550px"
+                    direction="auto"
+                    responsive
+                    pagination
+                    columns={columns}
+                    data={filteredItems}
+                    highlightOnHover
+                    striped
+                    subHeader
+                    paginationResetDefaultPage={resetPaginationToggle}
+                    subHeaderComponent={subHeaderComponentMemo}
+                    persistTableHead
+                    customStyles={{
+                        table: {
+                            fontSize: '30px',
+                        },
+                    }}
+                />
+            </div>
         </div>
     );
 };

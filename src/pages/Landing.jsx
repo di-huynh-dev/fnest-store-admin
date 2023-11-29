@@ -2,8 +2,26 @@ import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { BsCartCheck } from 'react-icons/bs';
 import { BiUserPlus } from 'react-icons/bi';
 import { Chart, BarChart } from '../components';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Landing = () => {
+    const navigate = useNavigate();
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/auth/login');
+        } else {
+            const getProducts = async () => {
+                try {
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+            getProducts();
+        }
+    }, [token, navigate]);
     return (
         <div className="m-20">
             <div className="flex justify-between">
