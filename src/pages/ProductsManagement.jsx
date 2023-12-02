@@ -445,7 +445,7 @@ const ProductsManagement = () => {
                                         onChange={formik.handleChange} // Use formik.handleChange
                                         className="select select-bordered mt-1 p-2 rounded-md w-full"
                                     >
-                                        <option value="">-- Chọn danh mục --</option>
+                                        <option value="">-- Chọn bộ sưu tập --</option>
                                         {collectionList.map((collection) => (
                                             <option key={collection.id} value={collection.id}>
                                                 {collection.name}
