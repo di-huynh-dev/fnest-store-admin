@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
-import { SubmitButton, FormInput, Loading } from '../components';
+import { SubmitButton, FormInput, Loading, TableLoader } from '../components';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -15,6 +15,7 @@ import PreviewImage from '../utils/helpers';
 
 const CategoriesManagement = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
@@ -22,6 +23,7 @@ const CategoriesManagement = () => {
     const [selectedRoomId, setSelectedRoomId] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [pending, setPending] = useState(true);
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [idCollection, setIdCollection] = useState(null);
     const [filterText, setFilterText] = useState('');
@@ -30,14 +32,31 @@ const CategoriesManagement = () => {
         (item) => item.name && item.name.toLowerCase().includes(filterText.toLowerCase()),
     );
 
-    const subHeaderComponentMemo = useMemo(() => {
-        const handleClear = () => {
-            if (filterText) {
-                setResetPaginationToggle(!resetPaginationToggle);
-                setFilterText('');
-            }
-        };
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/auth/login');
+        } else {
+            fetchData();
+        }
+    }, [token, navigate]);
 
+    const fetchData = async () => {
+        setPending(true);
+        try {
+            const respCate = await categoryServices.getAllCategories();
+            const respRoom = await roomServices.getAllRooms();
+            if (respCate.status == 'OK' && respRoom.status == 'OK') {
+                dispatch(getAllCategorysSuccess(respCate.data));
+                setData(respCate.data);
+                setRooms(respRoom.data);
+                setPending(false);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const subHeaderComponentMemo = useMemo(() => {
         return (
             <div className="grid grid-cols-2 my-2">
                 <div className="relative">
@@ -68,19 +87,15 @@ const CategoriesManagement = () => {
         );
     }, [filterText, resetPaginationToggle]);
 
+    const closeDialog = () => {
+        document.getElementById('dialog').close();
+        resetForm();
+    };
+
     const resetForm = () => {
         setIdCollection(null);
         setIsUpdateMode(false);
         formik.resetForm();
-        formik.setValues({
-            name: '',
-            file: '',
-        });
-    };
-
-    const closeDialog = () => {
-        document.getElementById('dialog').close();
-        resetForm();
     };
 
     const handleUpdate = (id) => {
@@ -89,18 +104,15 @@ const CategoriesManagement = () => {
         document.getElementById('dialog').showModal();
     };
 
-    const navigate = useNavigate();
-
     // Define handleDelete function
     const handleDelete = async (id) => {
         setIsLoading(true);
         try {
             const resp = await categoryServices.deleteCategory(token, id);
             setIsLoading(false);
-            if (resp.messages && resp.messages.length > 0) {
+            if (resp.status === 'OK') {
                 toast.success(resp.messages[0]);
-                const updatedData = await categoryServices.getAllCategories();
-                setData(updatedData.data);
+                fetchData();
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.messages) {
@@ -112,45 +124,24 @@ const CategoriesManagement = () => {
         }
     };
 
-    useEffect(() => {
-        if (!token) {
-            navigate('/admin/auth/login');
-        } else {
-            const getCategories = async () => {
-                try {
-                    const respCate = await categoryServices.getAllCategories();
-                    const respRoom = await roomServices.getAllRooms();
-                    dispatch(getAllCategorysSuccess(respCate.data));
-                    setData(respCate.data);
-                    setRooms(respRoom.data);
-                } catch (error) {
-                    console.log(error);
-                }
-            };
-            getCategories();
-        }
-    }, [token, navigate]);
-
     // Form submission handler
     const handleSubmit = async (values) => {
         setIsLoading(true);
         if (isUpdateMode) {
             if (selectedCategoryId) {
                 try {
+                    closeDialog();
+
                     const formData = new FormData();
                     formData.append('name', values.name);
                     formData.append('image', values.file);
 
                     const resp = await categoryServices.updateCategory(token, selectedCategoryId, formData);
-
-                    toast.success(resp.messages[0]);
-                    closeDialog();
-
-                    // After a successful update, fetch the latest data and update the state
-                    const updatedData = await categoryServices.getAllCategories();
-                    setIsLoading(false);
-                    setData(updatedData.data);
-                    resetForm();
+                    if (resp.status === 'OK') {
+                        setIsLoading(false);
+                        fetchData();
+                        toast.success(resp.messages[0]);
+                    }
                 } catch (error) {
                     setIsLoading(true);
                     resetForm();
@@ -171,13 +162,10 @@ const CategoriesManagement = () => {
                 formData.append('roomId', selectedRoomId);
 
                 const resp = await categoryServices.addCategory(token, formData);
-                dispatch(getAllCategorysSuccess(resp.data));
-                if (resp.messages && resp.messages.length > 0) {
-                    toast.success(resp.messages[0]);
-                    const updatedData = await categoryServices.getAllCategories();
-                    setData(updatedData.data);
+                if (resp.status === 'OK') {
                     setIsLoading(false);
-                    resetForm();
+                    toast.success(resp.messages[0]);
+                    fetchData();
                 }
             } catch (error) {
                 setIsLoading(false);
@@ -321,6 +309,8 @@ const CategoriesManagement = () => {
                 paginationResetDefaultPage={resetPaginationToggle}
                 subHeaderComponent={subHeaderComponentMemo}
                 persistTableHead
+                progressPending={pending}
+                progressComponent={<TableLoader />}
                 customStyles={{
                     table: {
                         fontSize: '30px',

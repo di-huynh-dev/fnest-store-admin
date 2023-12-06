@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import { SortAsc, FolderEdit, Trash } from 'lucide-react';
-import { FormInput, SubmitButton, Loading } from '../components';
+import { FormInput, SubmitButton, Loading, TableLoader } from '../components';
 import { Form, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -20,7 +20,29 @@ const CollectionSManagement = () => {
     const [data, setData] = useState([]);
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [pending, setPending] = useState(true);
     const [idCollection, setIdCollection] = useState(null);
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/auth/login');
+        } else {
+            fetchData();
+        }
+    }, [token, navigate]);
+
+    const fetchData = async () => {
+        try {
+            const resp = await collectionServices.getAllCollections();
+            if (resp.status == 'OK') {
+                dispatch(getAllCollectionsSuccess(resp.data));
+                setData(resp.data);
+                setPending(false);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     //Search
     const [filterText, setFilterText] = useState('');
@@ -30,13 +52,6 @@ const CollectionSManagement = () => {
     );
 
     const subHeaderComponentMemo = useMemo(() => {
-        const handleClear = () => {
-            if (filterText) {
-                setResetPaginationToggle(!resetPaginationToggle);
-                setFilterText('');
-            }
-        };
-
         return (
             <div className="grid grid-cols-2 my-2">
                 <div className="relative">
@@ -69,36 +84,14 @@ const CollectionSManagement = () => {
 
     const closeDialog = () => {
         document.getElementById('dialog').close();
+        resetForm();
     };
 
     const resetForm = () => {
         setIdCollection(null);
         setIsUpdateMode(false);
         formik.resetForm();
-        formik.setValues({
-            name: '',
-            description: '',
-            file: '',
-        });
     };
-
-    //Get
-    useEffect(() => {
-        if (!token) {
-            navigate('/admin/auth/login');
-        } else {
-            const getCollections = async () => {
-                try {
-                    const resp = await collectionServices.getAllCollections();
-                    dispatch(getAllCollectionsSuccess(resp.data));
-                    setData(resp.data);
-                } catch (error) {
-                    console.log(error);
-                }
-            };
-            getCollections();
-        }
-    }, [token, navigate]);
 
     //Update
     const handleUpdate = (id) => {
@@ -113,12 +106,9 @@ const CollectionSManagement = () => {
         try {
             const resp = await collectionServices.deleteCollection(token, id);
             setIsLoading(false);
-            if (resp.messages && resp.messages.length > 0) {
+            if (resp.status === 'OK') {
+                fetchData();
                 toast.success(resp.messages[0]);
-                const updatedData = await collectionServices.getAllCollections();
-                dispatch(getAllCollectionsSuccess(updatedData.data));
-                resetForm();
-                setData(updatedData.data);
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.messages) {
@@ -137,20 +127,16 @@ const CollectionSManagement = () => {
             if (idCollection) {
                 try {
                     closeDialog();
-
                     const formData = new FormData();
                     formData.append('name', values.name);
                     formData.append('description', values.description);
                     formData.append('image', values.file);
                     const resp = await collectionServices.updateCollection(token, idCollection, formData);
-
-                    setIsLoading(false);
-                    toast.success(resp.messages[0]);
-                    // After a successful update, fetch the latest data and update the state
-                    const updatedData = await collectionServices.getAllCollections();
-                    dispatch(getAllCollectionsSuccess(updatedData.data));
-                    setData(updatedData.data);
-                    resetForm();
+                    if (resp.status === 'OK') {
+                        setIsLoading(false);
+                        fetchData();
+                        toast.success(resp.messages[0]);
+                    }
                 } catch (error) {
                     setIsLoading(false);
                     resetForm();
@@ -171,12 +157,10 @@ const CollectionSManagement = () => {
                 formData.append('image', values.file);
 
                 const resp = await collectionServices.addCollection(token, formData);
-                setIsLoading(false);
-                if (resp.messages && resp.messages.length > 0) {
+                if (resp.status === 'OK') {
+                    setIsLoading(false);
+                    fetchData();
                     toast.success(resp.messages[0]);
-                    const updatedData = await collectionServices.getAllCollections();
-                    setData(updatedData.data);
-                    resetForm();
                 }
             } catch (error) {
                 setIsLoading(false);
@@ -211,21 +195,25 @@ const CollectionSManagement = () => {
             name: 'ID',
             selector: (row) => row.id,
             sortable: true,
+            width: '100px',
         },
         {
             name: 'Hình ảnh',
             selector: (row) => <img src={row.imageUrl} className="w-14 h-14 my-2"></img>,
             sortable: false,
+            width: '100px',
         },
         {
             name: 'Tên bộ sưu tập',
             selector: (row) => <div className="text-sm">{row.name}</div>,
             sortable: false,
+            width: '100px',
         },
         {
             name: 'Mô tả',
             selector: (row) => <div className="text-sm">{row.description}</div>,
             sortable: false,
+            width: '1000px',
         },
         {
             name: 'Actions',
@@ -244,9 +232,28 @@ const CollectionSManagement = () => {
                     </button>
                 </>
             ),
+            width: '100px',
         },
     ];
+    const ExpandedComponent = ({ data }) => {
+        return (
+            <div className="mx-20">
+                <div className="mb-2">
+                    <strong>ID:</strong> {data.id}
+                </div>
+                <div className="mb-2">
+                    <strong>Tên:</strong> {data.name}
+                </div>
+                <div className="mb-2">
+                    <strong>Hình ảnh:</strong> <img src={data.imageUrl} className="w-20 h-20" alt="Product" />
+                </div>
 
+                <div className="mb-2">
+                    <strong>Mô tả:</strong> <div className="text-sm">{data.description}</div>
+                </div>
+            </div>
+        );
+    };
     return (
         <div className="mx-10 my-10">
             {isLoading ? <Loading></Loading> : <></>}
@@ -312,6 +319,10 @@ const CollectionSManagement = () => {
                     paginationResetDefaultPage={resetPaginationToggle}
                     subHeaderComponent={subHeaderComponentMemo}
                     persistTableHead
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
+                    progressPending={pending}
+                    progressComponent={<TableLoader />}
                     customStyles={{
                         table: {
                             fontSize: '30px',

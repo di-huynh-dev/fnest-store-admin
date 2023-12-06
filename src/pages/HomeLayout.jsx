@@ -14,7 +14,7 @@ const HomeLayout = () => {
                 <main>
                     <div className="flex relative">
                         <Sidebar />
-                        <div className="min-h-screen w-full ml-[18rem]">
+                        <div className="min-h-screen w-full ml-[14rem]">
                             <Header />
                             <Outlet />
                         </div>

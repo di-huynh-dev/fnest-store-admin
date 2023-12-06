@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import { FolderEdit, Trash } from 'lucide-react';
-import { FormInput, SubmitButton, Loading } from '../components';
+import { FormInput, SubmitButton, Loading, TableLoader } from '../components';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -20,29 +20,29 @@ const RoomsManagement = () => {
     const token = useSelector((state) => state.auth.loginAdmin?.token);
     // const data = useSelector((state) => state.room.room?.currentRoom);
     const [data, setData] = useState([]);
-
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [idRoom, setIdRoom] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [pending, setPending] = useState(true);
 
-    //Get Rooms
     useEffect(() => {
         if (!token) {
             navigate('/admin/auth/login');
         } else {
-            const getCollections = async () => {
-                try {
-                    const resp = await roomServices.getAllRooms();
-                    dispatch(getAllRoomsSuccess(resp.data));
-                    setData(resp.data);
-                } catch (error) {
-                    console.log(error);
-                }
-            };
-            getCollections();
+            fetchData();
         }
     }, []);
 
+    const fetchData = async () => {
+        try {
+            const resp = await roomServices.getAllRooms();
+            dispatch(getAllRoomsSuccess(resp.data));
+            setData(resp.data);
+            setPending(false);
+        } catch (error) {
+            console.log(error);
+        }
+    };
     //Search
     const [filterText, setFilterText] = useState('');
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
@@ -52,13 +52,6 @@ const RoomsManagement = () => {
     );
 
     const subHeaderComponentMemo = useMemo(() => {
-        const handleClear = () => {
-            if (filterText) {
-                setResetPaginationToggle(!resetPaginationToggle);
-                setFilterText('');
-            }
-        };
-
         return (
             <div className="grid grid-cols-2 my-2">
                 <div className="relative">
@@ -91,8 +84,9 @@ const RoomsManagement = () => {
 
     const closeDialog = () => {
         document.getElementById('dialog').close();
+        resetForm();
     };
-    //Reset Form Update and Add new
+
     const resetForm = () => {
         setIdRoom(null);
         setIsUpdateMode(false);
@@ -115,11 +109,9 @@ const RoomsManagement = () => {
         setIsLoading(true);
         try {
             const resp = await roomServices.deleteRoom(token, id);
-            if (resp.messages && resp.messages.length > 0) {
+            if (resp.status === 'OK') {
                 setIsLoading(false);
-                const updatedData = await roomServices.getAllRooms();
-                dispatch(getAllRoomsSuccess(updatedData.data));
-                setData(updatedData.data);
+                fetchData();
                 toast.success(resp.messages[0]);
             }
         } catch (error) {
@@ -145,13 +137,10 @@ const RoomsManagement = () => {
                     formData.append('image', values.file);
 
                     const resp = await roomServices.updateRoom(token, idRoom, formData);
-                    if (resp.messages && resp.messages.length > 0) {
-                        toast.success(resp.messages[0]);
+                    if (resp.status === 'OK') {
                         setIsLoading(false);
-                        const updatedData = await roomServices.getAllRooms();
-                        dispatch(getAllRoomsSuccess(updatedData.data));
-                        setData(updatedData.data);
-                        resetForm();
+                        fetchData();
+                        toast.success(resp.messages[0]);
                     }
                 } catch (error) {
                     if (error.response && error.response.data && error.response.data.messages) {
@@ -170,13 +159,10 @@ const RoomsManagement = () => {
                 formData.append('image', values.file);
 
                 const resp = await roomServices.addRoom(token, formData);
-                if (resp.messages && resp.messages.length > 0) {
+                if (resp.status === 'OK') {
                     setIsLoading(false);
+                    fetchData();
                     toast.success(resp.messages[0]);
-                    const updatedData = await roomServices.getAllRooms();
-                    dispatch(getAllRoomsSuccess(updatedData.data));
-                    setData(updatedData.data);
-                    resetForm();
                 }
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.messages) {
@@ -292,6 +278,8 @@ const RoomsManagement = () => {
                 paginationResetDefaultPage={resetPaginationToggle}
                 subHeaderComponent={subHeaderComponentMemo}
                 persistTableHead
+                progressPending={pending}
+                progressComponent={<TableLoader />}
                 customStyles={{
                     table: {
                         fontSize: '30px',
