@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import { FolderEdit, Trash } from 'lucide-react';
-import { FormInput, SubmitButton, Loading } from '../components';
+import { FormInput, SubmitButton, Loading, TableLoader } from '../components';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -15,6 +15,7 @@ const NewsManagement = () => {
     const [data, setData] = useState([]);
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [pending, setPending] = useState(true);
     const [selectedPostId, setSelectedPostId] = useState('');
 
     useEffect(() => {
@@ -26,28 +27,18 @@ const NewsManagement = () => {
     }, []);
 
     const fetchData = async () => {
-        setIsLoading(true);
         try {
             const resp = await newsService.getAllNews(token);
-            setIsLoading(false);
             setData(resp.data);
+            setPending(false);
         } catch (error) {
-            setIsLoading(false);
             console.log(error);
         }
     };
-
     const [filterText, setFilterText] = useState('');
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
 
     const subHeaderComponentMemo = useMemo(() => {
-        const handleClear = () => {
-            if (filterText) {
-                setResetPaginationToggle(!resetPaginationToggle);
-                setFilterText('');
-            }
-        };
-
         return (
             <div className="grid grid-cols-2 my-2">
                 <div className="flex items-center mx-5">
@@ -67,6 +58,9 @@ const NewsManagement = () => {
 
     const closeDialog = () => {
         document.getElementById('dialog').close();
+        setIsUpdateMode(false);
+        setSelectedPostId('');
+        formik.resetForm();
     };
 
     const handleUpdate = (id) => {
@@ -80,13 +74,14 @@ const NewsManagement = () => {
         try {
             const resp = await newsService.deletePost(token, id);
             setIsLoading(false);
-            toast.success(resp.messages[0]);
-            closeDialog();
-            fetchData();
+            if (resp.messages && resp.messages.length > 0) {
+                toast.success(resp.messages[0]);
+                fetchData();
+            }
         } catch (error) {
-            setIsLoading(false);
             if (error.response && error.response.data && error.response.data.messages) {
                 const errorMessages = error.response.data.messages;
+                setIsLoading(false);
                 toast.error(errorMessages.join(', '));
             } else {
                 toast.error('Có lỗi xảy ra.');
@@ -94,22 +89,23 @@ const NewsManagement = () => {
         }
     };
     const handleSubmit = async (values) => {
+        setIsLoading(true);
         if (isUpdateMode) {
             if (selectedPostId) {
                 try {
-                    document.getElementById('dialog').close();
-
-                    var formData = new FormData();
-
+                    closeDialog();
+                    const formData = new FormData();
+                    formData.append('title', values.title);
                     formData.append('description', values.description);
                     for (let i = 0; i < values.images.length; i++) {
                         formData.append('banners', values.images[i]);
                     }
                     const resp = await newsService.updatePost(token, selectedPostId, formData);
-                    setIsLoading(false);
-                    toast.success(resp.messages[0]);
-                    closeDialog();
-                    fetchData();
+                    if (resp.messages && resp.messages.length > 0) {
+                        setIsLoading(false);
+                        toast.success(resp.messages[0]);
+                        fetchData();
+                    }
                 } catch (error) {
                     setIsLoading(false);
                     if (error.response && error.response.data && error.response.data.messages) {
@@ -121,21 +117,20 @@ const NewsManagement = () => {
                 }
             }
         } else {
-            setIsLoading(true);
             try {
-                document.getElementById('dialog').close();
-
-                var formData = new FormData();
-
+                closeDialog();
+                const formData = new FormData();
+                formData.append('title', values.title);
                 formData.append('description', values.description);
                 for (let i = 0; i < values.images.length; i++) {
                     formData.append('banners', values.images[i]);
                 }
                 const resp = await newsService.addPost(token, formData);
-                setIsLoading(false);
-                toast.success(resp.messages[0]);
-                closeDialog();
-                fetchData();
+                if (resp.messages && resp.messages.length > 0) {
+                    setIsLoading(false);
+                    toast.success(resp.messages[0]);
+                    fetchData();
+                }
             } catch (error) {
                 setIsLoading(false);
                 if (error.response && error.response.data && error.response.data.messages) {
@@ -149,6 +144,7 @@ const NewsManagement = () => {
     };
     const formik = useFormik({
         initialValues: {
+            title: '',
             description: '',
             images: [],
         },
@@ -177,7 +173,9 @@ const NewsManagement = () => {
                         ))}
                     </div>
                 </div>
-
+                <div className="mb-2">
+                    <strong>Tiêu đề:</strong> <div className="text-sm">{data.title}</div>
+                </div>
                 <div className="mb-2">
                     <strong>Mô tả:</strong> <div className="text-sm">{data.description}</div>
                 </div>
@@ -203,6 +201,12 @@ const NewsManagement = () => {
             ),
             sortable: false,
             width: '200px',
+        },
+        {
+            name: 'Tiêu đề',
+            selector: (row) => row.title,
+            sortable: true,
+            width: '100px',
         },
         {
             name: 'Nội dung',
@@ -249,6 +253,17 @@ const NewsManagement = () => {
                                     <div>
                                         <FormInput
                                             type="text"
+                                            label="Tiêu đề"
+                                            name="title"
+                                            value={formik.values.title}
+                                            placeholder="Nhập tiêu đề.."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.title && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.title}</span>
+                                        )}
+                                        <FormInput
+                                            type="text"
                                             label="Nội dung"
                                             name="description"
                                             value={formik.values.description}
@@ -291,6 +306,8 @@ const NewsManagement = () => {
                             paginationResetDefaultPage={resetPaginationToggle}
                             subHeaderComponent={subHeaderComponentMemo}
                             persistTableHead
+                            progressPending={pending}
+                            progressComponent={<TableLoader />}
                             expandableRows
                             expandableRowsComponent={ExpandedComponent}
                             customStyles={{

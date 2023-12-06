@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
-import { SubmitButton, FormInput, Loading } from '../components';
+import { SubmitButton, FormInput, Loading, TableLoader } from '../components';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -11,18 +11,39 @@ import { PiTargetLight } from 'react-icons/pi';
 import { useSelector } from 'react-redux';
 import { BsSearchHeart } from 'react-icons/bs';
 import PreviewImage from '../utils/helpers';
+import { formatPrice, formatDate } from '../utils/helpers';
 
 const ProductsManagement = () => {
+    const navigate = useNavigate();
+
     const categoryList = useSelector((state) => state.category.category?.currentCategory);
     const collectionList = useSelector((state) => state.collection.collection?.currentCollection);
-
     const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [pending, setPending] = useState(true);
     const [selectedProductId, setSelectedProductId] = useState('');
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [filterText, setFilterText] = useState('');
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/auth/login');
+        } else {
+            fetchData();
+        }
+    }, [token, navigate]);
+
+    const fetchData = async () => {
+        try {
+            const respPro = await productServices.getAllProducts(token);
+            setData(respPro.data);
+            setPending(false);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const filteredItems = data.filter(
         (item) => item.name && item.name.toLowerCase().includes(filterText.toLowerCase()),
@@ -66,9 +87,15 @@ const ProductsManagement = () => {
         );
     }, [filterText, resetPaginationToggle]);
 
+    const closeDialog = () => {
+        document.getElementById('dialog').close();
+        resetForm();
+    };
+
     const resetForm = () => {
         setSelectedProductId(null);
         setIsUpdateMode(false);
+        formik.resetForm();
     };
 
     const handleUpdate = (id) => {
@@ -76,18 +103,16 @@ const ProductsManagement = () => {
         setIsUpdateMode(true);
         document.getElementById('dialog').showModal();
     };
-    const navigate = useNavigate();
 
     // Define handleDelete function
     const handleDelete = async (id) => {
         setIsLoading(true);
         try {
             const resp = await productServices.deleteProduct(token, id);
-            setIsLoading(false);
-            if (resp.messages && resp.messages.length > 0) {
+            if (resp.status === 'OK') {
                 toast.success(resp.messages[0]);
-                const updatedData = await productServices.getAllProducts(token);
-                setData(updatedData.data);
+                setIsLoading(false);
+                fetchData();
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.messages) {
@@ -99,38 +124,23 @@ const ProductsManagement = () => {
         }
     };
 
-    useEffect(() => {
-        if (!token) {
-            navigate('/admin/auth/login');
-        } else {
-            const getProducts = async () => {
-                try {
-                    const respPro = await productServices.getAllProducts(token);
-                    setData(respPro.data);
-                } catch (error) {
-                    console.log(error);
-                }
-            };
-            getProducts();
-        }
-    }, [token, navigate]);
-
     // Form submission handler
     const handleSubmit = async (values) => {
         if (isUpdateMode) {
             if (selectedProductId) {
                 try {
+                    closeDialog();
                     const formData = new FormData();
                     formData.append('name', values.name);
                     formData.append('image', values.file);
 
                     const resp = await productServices.getAllProducts(token);
                     document.getElementById('dialog').close();
-                    toast.success(resp.messages[0]);
-                    // After a successful update, fetch the latest data and update the state
-                    const updatedData = await categoryServices.getAllCategories(token);
-                    setData(updatedData.data);
-                    resetForm();
+                    if (resp.status === 'OK') {
+                        toast.success(resp.messages[0]);
+                        setIsLoading(false);
+                        fetchData();
+                    }
                 } catch (error) {
                     if (error.response && error.response.data && error.response.data.messages) {
                         const errorMessages = error.response.data.messages;
@@ -143,7 +153,7 @@ const ProductsManagement = () => {
         } else {
             setIsLoading(true);
             try {
-                document.getElementById('dialog').close();
+                closeDialog();
                 const productInfo = {
                     name: values.name,
                     price: values.price,
@@ -169,14 +179,11 @@ const ProductsManagement = () => {
                     formData.append('images', values.images[i]);
                 }
                 const resp = await productServices.addProduct(token, formData);
-                setIsLoading(false);
 
-                if (resp.messages && resp.messages.length > 0) {
+                if (resp.status === 'OK') {
                     toast.success(resp.messages[0]);
-                    const updatedData = await productServices.getAllProducts(token);
-                    setData(updatedData.data);
-                    document.getElementById('dialog').close();
-                    resetForm();
+                    setIsLoading(false);
+                    fetchData();
                 }
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.messages) {
@@ -222,13 +229,47 @@ const ProductsManagement = () => {
 
     const ExpandedComponent = ({ data }) => {
         return (
-            <div>
-                <div className="flex m-2">
-                    {data.imageUrls.map((imageUrl, index) => (
-                        <div key={index}>
-                            <img src={imageUrl} alt={`Product Image ${index}`} className="w-[50px] m-4 h-[50px]" />
-                        </div>
-                    ))}
+            <div className="mx-20 grid grid-cols-2 gap-1">
+                <div className="mb-2">
+                    <strong>ID:</strong> {data.id}
+                </div>
+                <div className="mb-2">
+                    <strong>Hình ảnh:</strong>
+                    <div className="flex">
+                        {data.imageUrls.map((image, index) => (
+                            <img key={index} src={image} className="w-20 h-20" alt={`Product ${index + 1}`} />
+                        ))}
+                    </div>
+                </div>
+                <div className="mb-2">
+                    <strong>Tên:</strong> <div className="text-sm">{data.name}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Mô tả:</strong> <div className="text-sm">{data.description}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Vật liệu:</strong> <div className="text-sm">{data.material}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Kích thước:</strong> <div className="text-sm">{data.size}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Giá nhập:</strong> <div className="text-sm">{formatPrice(data.price)}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Giá bán:</strong> <div className="text-sm">{formatPrice(data.salePrice)}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Đã bán:</strong> <div className="text-sm">{data.sold}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Còn lại:</strong> <div className="text-sm">{data.inStock}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Mã bộ sưu tập:</strong> <div className="text-sm">{data.collectionId}</div>
+                </div>
+                <div className="mb-2">
+                    <strong>Mã danh mục:</strong> <div className="text-sm">{data.categoryId}</div>
                 </div>
             </div>
         );
@@ -239,31 +280,37 @@ const ProductsManagement = () => {
             name: 'ID',
             selector: (row) => row.id,
             sortable: true,
+            width: '70px',
         },
         {
             name: 'Hình ảnh',
             selector: (row) => <img src={row.thumbnail} className="w-14 h-14 my-2"></img>,
             sortable: false,
+            width: '100px',
         },
         {
             name: 'Tên sản phẩm',
             selector: (row) => <div className="text-sm">{row.name}</div>,
             sortable: false,
+            width: '250px',
         },
         {
             name: 'Giá',
-            selector: (row) => <div className="text-sm">{row.price}</div>,
+            selector: (row) => <div className="text-sm">{formatPrice(row.price)}</div>,
             sortable: false,
+            width: '120px',
         },
         {
             name: 'Kích thước',
             selector: (row) => <div className="text-sm">{row.size}</div>,
             sortable: false,
+            width: '140px',
         },
         {
             name: 'Chất liệu',
             selector: (row) => <div className="text-sm">{row.material}</div>,
             sortable: false,
+            width: '230px',
         },
         {
             name: 'Kho',
@@ -282,6 +329,7 @@ const ProductsManagement = () => {
                     </>
                 ),
             sortable: false,
+            width: '100px',
         },
         {
             name: 'Nổi bật',
@@ -294,16 +342,19 @@ const ProductsManagement = () => {
                     <></>
                 ),
             sortable: false,
+            width: '100px',
         },
         {
             name: 'Danh mục',
             selector: (row) => <div className="text-sm">{row.categoryId}</div>,
             sortable: false,
+            width: '100px',
         },
         {
             name: 'Bộ sưu tập',
             selector: (row) => <div className="text-sm">{row.collectionId}</div>,
             sortable: false,
+            width: '100px',
         },
         {
             name: '',
@@ -322,6 +373,7 @@ const ProductsManagement = () => {
                     </button>
                 </>
             ),
+            width: '100px',
         },
     ];
 
@@ -335,8 +387,7 @@ const ProductsManagement = () => {
                         <div className="my-2 grid grid-cols-3 space-x-5">
                             <div
                                 onClick={() => {
-                                    document.getElementById('dialog').close();
-                                    resetForm;
+                                    closeDialog();
                                 }}
                                 className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
                             >
@@ -513,6 +564,10 @@ const ProductsManagement = () => {
                     paginationResetDefaultPage={resetPaginationToggle}
                     subHeaderComponent={subHeaderComponentMemo}
                     persistTableHead
+                    progressPending={pending}
+                    progressComponent={<TableLoader />}
+                    expandableRows
+                    expandableRowsComponent={ExpandedComponent}
                     customStyles={{
                         table: {
                             fontSize: '30px',

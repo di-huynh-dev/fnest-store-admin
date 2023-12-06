@@ -21,7 +21,7 @@ import Logo from '../assets/logo/Logo.png';
 import { useTranslation } from 'react-i18next';
 
 const variants = {
-    expanded: { width: '15%' },
+    expanded: { width: '12%' },
     nonexpanded: { width: '6%' },
 };
 
@@ -60,7 +60,7 @@ const Sidebar = () => {
             title: 'Users',
             items: [
                 { id: 9, link: t('users'), icon: <User />, to: 'admin/users' },
-                { id: 10, link: t('customers'), icon: <UserSquare />, to: 'admin/customers' },
+                // { id: 10, link: t('customers'), icon: <UserSquare />, to: 'admin/customers' },
                 { id: 11, link: t('feedbacks'), icon: <MessageSquarePlus />, to: 'admin/feedbacks' },
             ],
         },

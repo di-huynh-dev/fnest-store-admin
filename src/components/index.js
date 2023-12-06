@@ -6,3 +6,4 @@ export { default as Chart } from './Chart';
 export { default as BarChart } from './BarChart';
 export { default as FormInput } from './FormInput';
 export { default as SubmitButton } from './SubmitButton';
+export { default as TableLoader } from './TableLoader';

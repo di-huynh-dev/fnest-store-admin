@@ -126,7 +126,7 @@ const UsersManagement = () => {
             }
         };
         return (
-            <div className="grid grid-cols-2 my-2">
+            <div className="">
                 <div className="relative">
                     <label className="input-group w-full">
                         <input
@@ -139,17 +139,6 @@ const UsersManagement = () => {
                             <BsSearchHeart className="text-primary" />
                         </span>
                     </label>
-                </div>
-                <div className="flex items-center mx-5">
-                    <button
-                        className="btn bg-primary btn-ghost text-white"
-                        onClick={() => {
-                            setIsUpdateMode(false);
-                            document.getElementById('dialog').showModal();
-                        }}
-                    >
-                        + Thêm sản phẩm
-                    </button>
                 </div>
             </div>
         );
