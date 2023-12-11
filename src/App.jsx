@@ -2,7 +2,6 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import {
     CustomersManagement,
     CategoriesManagement,
-    Landing,
     OrdersManagement,
     ProductsManagement,
     SalesManagement,
@@ -27,7 +26,7 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Landing />,
+                element: <SalesManagement />,
                 errorElement: <ErrorElement />,
             },
             {
@@ -40,11 +39,7 @@ const router = createBrowserRouter([
                 element: <OrdersManagement />,
                 errorElement: <ErrorElement />,
             },
-            {
-                path: 'admin/sales',
-                element: <SalesManagement />,
-                errorElement: <ErrorElement />,
-            },
+
             {
                 path: 'admin/users',
                 element: <UsersManagement />,
