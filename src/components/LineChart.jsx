@@ -1,32 +1,41 @@
 import React from 'react';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Line } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const BarChart = ({ data }) => {
+const LineChart = ({ data }) => {
     const formattedData = {
         labels: data.numOfOrderByDays.map((item) => item.date),
         datasets: [
             {
                 label: 'Số lượng đơn hàng',
                 data: data.numOfOrderByDays.map((item) => item.amount),
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1,
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
             },
         ],
     };
 
     const options = {
         responsive: true,
+        tension: 0,
         plugins: {
             legend: {
-                display: true,
+                position: 'top',
             },
             title: {
                 display: true,
-                text: 'Thống kê số lượng đơn hàng theo tháng/năm',
+                text: 'Thống kê số lượng đơn hàng theo ngày',
             },
         },
         scales: {
@@ -41,12 +50,13 @@ const BarChart = ({ data }) => {
                     display: true,
                     text: 'Số lượng đơn hàng',
                 },
+                max: Math.max(...data.numOfOrderByDays.map((item) => item.amount)) + 1,
                 stepSize: 1,
             },
         },
     };
 
-    return <Bar data={formattedData} options={options} />;
+    return <Line data={formattedData} options={options} />;
 };
 
-export default BarChart;
+export default LineChart;

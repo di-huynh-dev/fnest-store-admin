@@ -49,7 +49,7 @@ const Sidebar = () => {
         {
             title: 'Dashboard',
             items: [
-                { id: 1, link: 'Dashboard', icon: <BarChart />, to: '/' },
+                // { id: 1, link: 'Dashboard', icon: <BarChart />, to: '/' },
                 { id: 8, link: t('sales'), icon: <LucideBadgeDollarSign />, to: 'admin/sales' },
             ],
         },

@@ -171,6 +171,69 @@ const OrdersManagement = () => {
             width: '100px',
         },
     ];
+    const ExpandedComponent = ({ data }) => {
+        return (
+            <div className="mx-20 my-4">
+                <div className="grid grid-cols-4 mb-2">
+                    <div>
+                        <strong>Mã đơn hàng:</strong> {data.id}
+                    </div>
+                    <div>
+                        <strong>Tổng hóa đơn:</strong> {formatPrice(data.total)}
+                    </div>
+                    <div>
+                        <strong>Giảm giá:</strong> {formatPrice(data.codeDiscount)}
+                    </div>
+                    <div>
+                        <strong>Phí vận chuyển:</strong> {formatPrice(data.shippingCharge)}
+                    </div>
+                </div>
+                <div className="mb-2">
+                    <strong>Danh sách sản phẩm:</strong>
+                    {data.orderItemList.map((item) => (
+                        <div className="mb-2 grid grid-cols-7 gap-2">
+                            <div className="mb-2">
+                                <strong>Tên:</strong> <div className="text-sm">{item.productName}</div>
+                            </div>
+                            <div className="mb-2">
+                                <strong>Kích thước:</strong> <div className="text-sm">{item.productSize}</div>
+                            </div>
+                            <div className="mb-2">
+                                <strong>Vật liệu:</strong> <div className="text-sm">{item.productMaterial}</div>
+                            </div>
+                            <div className="mb-2">
+                                <strong>Hình ảnh:</strong> <img src={item.productThumbnail} className="w-20 h-20" />
+                            </div>
+                            <div className="mb-2">
+                                <strong>Số lượng:</strong> <div className="text-sm">{item.quantity}</div>
+                            </div>
+                            <div className="mb-2">
+                                <strong>Giá SP:</strong> <div className="text-sm">{formatPrice(item.productPrice)}</div>
+                            </div>
+                            <div className="mb-2">
+                                <strong>Tổng:</strong> <div className="text-sm">{formatPrice(item.total)}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div>
+                    <strong>Thông tin nhận hàng</strong>
+                    <div className="mb-2">
+                        <strong>Người nhận:</strong>{' '}
+                        <div className="text-sm">
+                            {data.deliveryAddress.receiverName},{data.deliveryAddress.receiverPhone}
+                        </div>
+                    </div>
+                    <div className="mb-2">
+                        <strong>Địa chỉ:</strong> <div className="text-sm">{data.deliveryAddress.deliveryAddress}</div>
+                    </div>
+                    <div className="mb-2">
+                        <strong>Phương thức thanh toán:</strong> <div className="text-sm">{data.paymentMethod}</div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
     return (
         <div className="m-10">
             {isLoading ? (
@@ -224,6 +287,8 @@ const OrdersManagement = () => {
                         persistTableHead
                         progressPending={pending}
                         progressComponent={<TableLoader />}
+                        expandableRows
+                        expandableRowsComponent={ExpandedComponent}
                         customStyles={{
                             table: {
                                 fontSize: '30px',

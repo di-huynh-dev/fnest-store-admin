@@ -1,7 +1,7 @@
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { BsCartCheck } from 'react-icons/bs';
 import { BiUserPlus } from 'react-icons/bi';
-import { Chart, BarChart } from '../components';
+import { LineChart, BarChart } from '../components';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -83,19 +83,19 @@ const Landing = () => {
                     </div>
                 </div>
             </div>
-            <div className="grid grid-cols-2">
+            <div className="">
                 <div className="flex space-x-8  py-6 w-full ease-in-out  hover:shadow-xl duration-300">
                     <div className="flex flex-col rounded-md border w-full p-8 justify-center bg-white">
                         Expenses Graph
-                        <Chart />
+                        <LineChart />
                     </div>
                 </div>
-                <div className="flex space-x-8 py-6 w-full ease-in-out duration-300 hover:shadow-xl">
+                {/* <div className="flex space-x-8 py-6 w-full ease-in-out duration-300 hover:shadow-xl">
                     <div className="flex flex-col rounded-md  border w-full p-8 justify-center bg-white">
                         Expenses Graph
                         <BarChart />
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );
