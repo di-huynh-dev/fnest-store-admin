@@ -1,6 +1,5 @@
 export { default as CustomersManagement } from './CustomersManagement';
 export { default as CategoriesManagement } from './CategoriesManagement';
-export { default as Landing } from './Landing';
 export { default as OrdersManagement } from './OrdersManagement';
 export { default as ProductsManagement } from './ProductsManagement';
 export { default as SalesManagement } from './SalesManagement';
