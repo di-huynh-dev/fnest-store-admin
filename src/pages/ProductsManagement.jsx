@@ -220,7 +220,6 @@ const ProductsManagement = () => {
             thumbnail: Yup.mixed().required('Vui lòng tải lên hình ảnh!'),
             images: Yup.mixed().required('Vui lòng tải lên hình ảnh!'),
             price: Yup.string().required('Vui lòng nhập thông tin!'),
-            salePrice: Yup.string().required('Vui lòng nhập thông tin!'),
             description: Yup.string().required('Vui lòng nhập thông tin!'),
             size: Yup.string().required('Vui lòng nhập thông tin!'),
             material: Yup.string().required('Vui lòng nhập thông tin!'),
@@ -467,9 +466,9 @@ const ProductsManagement = () => {
                                     <div>
                                         <FormInput
                                             type="text"
-                                            label="Giá nhập"
+                                            label="Giá gốc"
                                             name="price"
-                                            placeholder="Giá nhập..."
+                                            placeholder="Giá gốc..."
                                             onchange={formik.handleChange}
                                         />
                                         {formik.errors.price && (
@@ -518,14 +517,12 @@ const ProductsManagement = () => {
                                     <div>
                                         <FormInput
                                             type="text"
-                                            label="Giá bán"
+                                            label="Giá giảm"
                                             name="salePrice"
-                                            placeholder="Nhập giá sản phẩm..."
+                                            placeholder="Nhập giá giảm..."
                                             onchange={formik.handleChange}
                                         />
-                                        {formik.errors.salePrice && (
-                                            <span className="text-error text-sm p-1 ">{formik.errors.salePrice}</span>
-                                        )}
+
                                         <FormInput
                                             type="text"
                                             label="Mô tả sản phẩm"

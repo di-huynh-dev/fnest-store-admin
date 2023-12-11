@@ -32,6 +32,9 @@ const SalesManagement = () => {
     };
 
     useEffect(() => {
+        if (!token) {
+            navigate('/admin/auth/login');
+        }
         fetchAndUpdateData(selectedMonth, selectedYear);
     }, [token, selectedMonth, selectedYear]);
 
