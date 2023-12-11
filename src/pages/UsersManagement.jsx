@@ -235,12 +235,9 @@ const UsersManagement = () => {
             sortable: true,
         },
         {
-            name: 'action',
+            name: '',
             cell: (row) => (
                 <>
-                    <button className="btn btn-outline btn-error mx-2">
-                        <TrashIcon />
-                    </button>
                     <button
                         className="btn btn-outline btn-success mx-2"
                         onClick={() => handleUpdate(row.id, row.status)}
@@ -342,14 +339,14 @@ const UsersManagement = () => {
                                             label="Tên đăng nhập"
                                             name="username"
                                             value={formik.values.username}
-                                            placeholder="Nhập mô tả..."
+                                            placeholder="Nhập username..."
                                             onchange={formik.handleChange}
                                         />
                                         {formik.errors.username && (
                                             <span className="text-error text-sm p-1 ">{formik.errors.username}</span>
                                         )}
                                         <FormInput
-                                            type="password"
+                                            type="text"
                                             label="Mật khẩu"
                                             name="password"
                                             value={formik.values.password}

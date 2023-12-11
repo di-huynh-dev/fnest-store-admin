@@ -1,13 +1,12 @@
 import axiosClient from '../utils/axiosClient';
 
 const productServices = {
-    getAllProducts(accessToken) {
-        const url = '/admin/product';
+    getAllProducts() {
+        const url = '/product';
         return axiosClient.get(url, {
             headers: {
                 accept: 'application/json',
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
             },
         });
     },

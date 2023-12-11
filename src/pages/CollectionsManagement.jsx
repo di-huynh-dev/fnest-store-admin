@@ -17,6 +17,7 @@ const CollectionSManagement = () => {
     const navigate = useNavigate();
 
     const token = useSelector((state) => state.auth.loginAdmin?.token);
+    const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
     const [data, setData] = useState([]);
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +54,7 @@ const CollectionSManagement = () => {
 
     const subHeaderComponentMemo = useMemo(() => {
         return (
-            <div className="grid grid-cols-2 my-2">
+            <div className={'grid my-2' + (user.role === 'ADMIN' && 'grid grid-cols-2')}>
                 <div className="relative">
                     <label className="input-group w-full">
                         <input
@@ -67,17 +68,19 @@ const CollectionSManagement = () => {
                         </span>
                     </label>
                 </div>
-                <div className="flex items-center mx-5">
-                    <button
-                        className="btn bg-primary btn-ghost text-white"
-                        onClick={() => {
-                            setIsUpdateMode(false);
-                            document.getElementById('dialog').showModal();
-                        }}
-                    >
-                        + Thêm bộ sưu tập
-                    </button>
-                </div>
+                {user.role === 'ADMIN' && (
+                    <div className="flex items-center mx-5">
+                        <button
+                            className="btn bg-primary btn-ghost text-white"
+                            onClick={() => {
+                                setIsUpdateMode(false);
+                                document.getElementById('dialog').showModal();
+                            }}
+                        >
+                            + Thêm bộ sưu tập
+                        </button>
+                    </div>
+                )}
             </div>
         );
     }, [filterText, resetPaginationToggle]);
@@ -213,23 +216,27 @@ const CollectionSManagement = () => {
             name: 'Mô tả',
             selector: (row) => <div className="text-sm">{row.description}</div>,
             sortable: false,
-            width: '1000px',
+            width: '600px',
         },
         {
-            name: 'Actions',
+            name: '',
             cell: (row) => (
                 <>
-                    <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
-                        <Trash />
-                    </button>
-                    <button
-                        className="btn btn-outline btn-success m-2"
-                        onClick={() => {
-                            handleUpdate(row.id);
-                        }}
-                    >
-                        <FolderEdit />
-                    </button>
+                    {user.role === 'ADMIN' && (
+                        <>
+                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                                <Trash />
+                            </button>
+                            <button
+                                className="btn btn-outline btn-success m-2"
+                                onClick={() => {
+                                    handleUpdate(row.id);
+                                }}
+                            >
+                                <FolderEdit />
+                            </button>
+                        </>
+                    )}
                 </>
             ),
             width: '100px',
@@ -255,81 +262,89 @@ const CollectionSManagement = () => {
         );
     };
     return (
-        <div className="mx-10 my-10">
-            {isLoading ? <Loading></Loading> : <></>}
-            <dialog id="dialog" className="modal">
-                <div className="modal-box max-w-2xl">
-                    <h3 className="font-bold text-2xl text-center">Bộ sưu tập</h3>
-                    <form className="my-2" onSubmit={formik.handleSubmit}>
-                        <div onClick={closeDialog} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                            X
-                        </div>
-                        <div className="text-center space-x-10">
-                            <div>
-                                <FormInput
-                                    type="text"
-                                    label="Tên Bộ sưu tập"
-                                    name="name"
-                                    value={formik.values.name}
-                                    placeholder="Nhập tên bộ sưu tập..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.name && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
-                                )}
-                                <FormInput
-                                    type="text"
-                                    label="Mô tả"
-                                    name="description"
-                                    value={formik.values.description}
-                                    placeholder="Nhập mô tả..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.description && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.description}</span>
-                                )}
-                                <FormInput
-                                    type="file"
-                                    label="Hình ảnh"
-                                    name="file"
-                                    onchange={(e) => formik.setFieldValue('file', e.target.files[0])}
-                                />
-                                {formik.errors.file && <p className="text-error text-sm p-1">{formik.errors.file}</p>}
-                                {formik.values.file && <PreviewImage file={formik.values.file} />}
-                                <div className="flex items-center mt-3 text-center justify-center">
-                                    <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
+        <div className="m-10">
+            {isLoading ? (
+                <Loading></Loading>
+            ) : (
+                <>
+                    <dialog id="dialog" className="modal">
+                        <div className="modal-box max-w-2xl">
+                            <h3 className="font-bold text-2xl text-center">Bộ sưu tập</h3>
+                            <form className="my-2" onSubmit={formik.handleSubmit}>
+                                <div
+                                    onClick={closeDialog}
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                >
+                                    X
                                 </div>
-                            </div>
+                                <div className="text-center space-x-10">
+                                    <div>
+                                        <FormInput
+                                            type="text"
+                                            label="Tên Bộ sưu tập"
+                                            name="name"
+                                            value={formik.values.name}
+                                            placeholder="Nhập tên bộ sưu tập..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.name && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
+                                        )}
+                                        <FormInput
+                                            type="text"
+                                            label="Mô tả"
+                                            name="description"
+                                            value={formik.values.description}
+                                            placeholder="Nhập mô tả..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.description && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.description}</span>
+                                        )}
+                                        <FormInput
+                                            type="file"
+                                            label="Hình ảnh"
+                                            name="file"
+                                            onchange={(e) => formik.setFieldValue('file', e.target.files[0])}
+                                        />
+                                        {formik.errors.file && (
+                                            <p className="text-error text-sm p-1">{formik.errors.file}</p>
+                                        )}
+                                        {formik.values.file && <PreviewImage file={formik.values.file} />}
+                                        <div className="flex items-center mt-3 text-center justify-center">
+                                            <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
-            </dialog>
-            <div className="container">
-                <DataTable
-                    title="QUẢN LÝ BỘ SƯU TẬP FNEST"
-                    fixedHeader
-                    fixedHeaderScrollHeight="550px"
-                    direction="auto"
-                    responsive
-                    pagination
-                    columns={columns}
-                    data={filteredItems}
-                    striped
-                    subHeader
-                    paginationResetDefaultPage={resetPaginationToggle}
-                    subHeaderComponent={subHeaderComponentMemo}
-                    persistTableHead
-                    expandableRows
-                    expandableRowsComponent={ExpandedComponent}
-                    progressPending={pending}
-                    progressComponent={<TableLoader />}
-                    customStyles={{
-                        table: {
-                            fontSize: '30px',
-                        },
-                    }}
-                />
-            </div>
+                    </dialog>
+                    <DataTable
+                        title="QUẢN LÝ BỘ SƯU TẬP FNEST"
+                        fixedHeader
+                        fixedHeaderScrollHeight="550px"
+                        direction="auto"
+                        responsive
+                        pagination
+                        columns={columns}
+                        data={filteredItems}
+                        striped
+                        subHeader
+                        paginationResetDefaultPage={resetPaginationToggle}
+                        subHeaderComponent={subHeaderComponentMemo}
+                        persistTableHead
+                        expandableRows
+                        expandableRowsComponent={ExpandedComponent}
+                        progressPending={pending}
+                        progressComponent={<TableLoader />}
+                        customStyles={{
+                            table: {
+                                fontSize: '30px',
+                            },
+                        }}
+                    />
+                </>
+            )}
         </div>
     );
 };

@@ -18,6 +18,7 @@ const CategoriesManagement = () => {
     const navigate = useNavigate();
 
     const token = useSelector((state) => state.auth.loginAdmin?.token);
+    const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
     const [data, setData] = useState([]);
     const [rooms, setRooms] = useState([]);
     const [selectedRoomId, setSelectedRoomId] = useState('');
@@ -58,7 +59,7 @@ const CategoriesManagement = () => {
 
     const subHeaderComponentMemo = useMemo(() => {
         return (
-            <div className="grid grid-cols-2 my-2">
+            <div className={'grid my-2' + (user.role === 'ADMIN' && 'grid grid-cols-2')}>
                 <div className="relative">
                     <label className="input-group w-full">
                         <input
@@ -72,17 +73,19 @@ const CategoriesManagement = () => {
                         </span>
                     </label>
                 </div>
-                <div className="flex items-center mx-5">
-                    <button
-                        className="btn bg-primary btn-ghost text-white"
-                        onClick={() => {
-                            setIsUpdateMode(false);
-                            document.getElementById('dialog').showModal();
-                        }}
-                    >
-                        + Thêm danh mục
-                    </button>
-                </div>
+                {user.role === 'ADMIN' && (
+                    <div className="flex items-center mx-5">
+                        <button
+                            className="btn bg-primary btn-ghost text-white"
+                            onClick={() => {
+                                setIsUpdateMode(false);
+                                document.getElementById('dialog').showModal();
+                            }}
+                        >
+                            + Thêm danh mục
+                        </button>
+                    </div>
+                )}
             </div>
         );
     }, [filterText, resetPaginationToggle]);
@@ -218,17 +221,21 @@ const CategoriesManagement = () => {
             name: '',
             cell: (row) => (
                 <>
-                    <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
-                        <Trash />
-                    </button>
-                    <button
-                        className="btn btn-outline btn-success mx-2"
-                        onClick={() => {
-                            handleUpdate(row.id);
-                        }}
-                    >
-                        <FolderEdit />
-                    </button>
+                    {user.role === 'ADMIN' && (
+                        <>
+                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                                <Trash />
+                            </button>
+                            <button
+                                className="btn btn-outline btn-success mx-2"
+                                onClick={() => {
+                                    handleUpdate(row.id);
+                                }}
+                            >
+                                <FolderEdit />
+                            </button>
+                        </>
+                    )}
                 </>
             ),
         },

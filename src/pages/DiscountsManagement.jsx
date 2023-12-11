@@ -14,6 +14,7 @@ import { formatDate, formatPrice } from '../utils/helpers';
 const DiscountsManagement = () => {
     const navigate = useNavigate();
     const token = useSelector((state) => state.auth.loginAdmin?.token);
+    const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
 
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +54,7 @@ const DiscountsManagement = () => {
         };
 
         return (
-            <div className="grid grid-cols-2 my-2">
+            <div className={'grid my-2' + (user.role === 'ADMIN' && 'grid grid-cols-2')}>
                 <div className="relative">
                     <label className="input-group w-full">
                         <input
@@ -67,17 +68,19 @@ const DiscountsManagement = () => {
                         </span>
                     </label>
                 </div>
-                <div className="flex items-center mx-5">
-                    <button
-                        className="btn bg-primary btn-ghost text-white"
-                        onClick={() => {
-                            setIsUpdateMode(false);
-                            document.getElementById('dialog').showModal();
-                        }}
-                    >
-                        + Thêm mã giảm giá
-                    </button>
-                </div>
+                {user.role === 'ADMIN' && (
+                    <div className="flex items-center mx-5">
+                        <button
+                            className="btn bg-primary btn-ghost text-white"
+                            onClick={() => {
+                                setIsUpdateMode(false);
+                                document.getElementById('dialog').showModal();
+                            }}
+                        >
+                            + Thêm mã giảm giá
+                        </button>
+                    </div>
+                )}
             </div>
         );
     }, [filterText, resetPaginationToggle]);
@@ -197,7 +200,7 @@ const DiscountsManagement = () => {
             name: 'ID',
             selector: (row) => row.id,
             sortable: true,
-            width: '100px',
+            width: '60px',
         },
         {
             name: 'Mã giảm',
@@ -207,7 +210,7 @@ const DiscountsManagement = () => {
         },
         {
             name: 'Phần trăm giảm',
-            selector: (row) => row.value,
+            selector: (row) => <>{row.value}%</>,
             sortable: false,
             width: '100px',
         },
@@ -215,56 +218,61 @@ const DiscountsManagement = () => {
             name: 'Mô tả',
             selector: (row) => <div className="text-sm">{row.description}</div>,
             sortable: false,
-            width: '200px',
+            width: '150px',
         },
         {
             name: 'Giá trị tối thiểu đơn',
             selector: (row) => formatPrice(row.minOrderValue),
             sortable: false,
-            width: '150px',
+            width: '120px',
         },
         {
             name: 'Số tiền tối đa',
             selector: (row) => formatPrice(row.maxDiscount),
             sortable: false,
-            width: '150px',
+            width: '120px',
         },
         {
             name: 'Số lần giảm',
             selector: (row) => row.times,
             sortable: false,
-            width: '150px',
+            width: '100px',
         },
         {
             name: 'Bắt đầu',
             selector: (row) => formatDate(row.beginDate),
             sortable: false,
-            width: '150px',
+            width: '120px',
         },
         {
             name: 'Kết thúc',
             selector: (row) => formatDate(row.endDate),
             sortable: false,
-            width: '150px',
+            width: '120px',
         },
         {
             name: '',
             cell: (row) => (
                 <>
-                    <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
-                        <Trash />
-                    </button>
-                    <button
-                        className="btn btn-outline btn-success mx-2"
-                        onClick={() => {
-                            handleUpdate(row.id);
-                        }}
-                    >
-                        <FolderEdit />
-                    </button>
+                    {' '}
+                    {user.role === 'ADMIN' && (
+                        <>
+                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                                <Trash />
+                            </button>
+                            <button
+                                className="btn btn-outline btn-success mx-2"
+                                onClick={() => {
+                                    handleUpdate(row.id);
+                                }}
+                            >
+                                <FolderEdit />
+                            </button>{' '}
+                        </>
+                    )}
                 </>
             ),
-            width: '150px',
+            width: '100px',
         },
     ];
 
@@ -401,33 +409,31 @@ const DiscountsManagement = () => {
                     </form>
                 </div>
             </dialog>
-            <div className="container">
-                <DataTable
-                    title="QUẢN LÝ MÃ GIẢM GIÁ FNEST"
-                    fixedHeader
-                    fixedHeaderScrollHeight="550px"
-                    direction="auto"
-                    responsive
-                    pagination
-                    columns={columns}
-                    data={data}
-                    highlightOnHover
-                    striped
-                    subHeader
-                    paginationResetDefaultPage={resetPaginationToggle}
-                    subHeaderComponent={subHeaderComponentMemo}
-                    persistTableHead
-                    expandableRows
-                    expandableRowsComponent={ExpandedComponent}
-                    progressPending={pending}
-                    progressComponent={<TableLoader />}
-                    customStyles={{
-                        table: {
-                            fontSize: '30px',
-                        },
-                    }}
-                />
-            </div>
+            <DataTable
+                title="QUẢN LÝ MÃ GIẢM GIÁ FNEST"
+                fixedHeader
+                fixedHeaderScrollHeight="550px"
+                direction="auto"
+                responsive
+                pagination
+                columns={columns}
+                data={data}
+                highlightOnHover
+                striped
+                subHeader
+                paginationResetDefaultPage={resetPaginationToggle}
+                subHeaderComponent={subHeaderComponentMemo}
+                persistTableHead
+                expandableRows
+                expandableRowsComponent={ExpandedComponent}
+                progressPending={pending}
+                progressComponent={<TableLoader />}
+                customStyles={{
+                    table: {
+                        fontSize: '30px',
+                    },
+                }}
+            />
         </div>
     );
 };
