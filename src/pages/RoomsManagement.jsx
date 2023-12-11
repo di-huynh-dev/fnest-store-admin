@@ -18,7 +18,7 @@ const RoomsManagement = () => {
     const navigate = useNavigate();
 
     const token = useSelector((state) => state.auth.loginAdmin?.token);
-    // const data = useSelector((state) => state.room.room?.currentRoom);
+    const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
     const [data, setData] = useState([]);
     const [isUpdateMode, setIsUpdateMode] = useState(false);
     const [idRoom, setIdRoom] = useState(null);
@@ -53,7 +53,7 @@ const RoomsManagement = () => {
 
     const subHeaderComponentMemo = useMemo(() => {
         return (
-            <div className="grid grid-cols-2 my-2">
+            <div className={'grid my-2' + (user.role === 'ADMIN' && 'grid grid-cols-2')}>
                 <div className="relative">
                     <label className="input-group w-full">
                         <input
@@ -67,17 +67,19 @@ const RoomsManagement = () => {
                         </span>
                     </label>
                 </div>
-                <div className="flex items-center mx-5">
-                    <button
-                        className="btn bg-primary btn-ghost text-white"
-                        onClick={() => {
-                            setIsUpdateMode(false);
-                            document.getElementById('dialog').showModal();
-                        }}
-                    >
-                        + Thêm phòng
-                    </button>
-                </div>
+                {user.role === 'ADMIN' && (
+                    <div className="flex items-center mx-5">
+                        <button
+                            className="btn bg-primary btn-ghost text-white"
+                            onClick={() => {
+                                setIsUpdateMode(false);
+                                document.getElementById('dialog').showModal();
+                            }}
+                        >
+                            + Thêm phòng
+                        </button>
+                    </div>
+                )}
             </div>
         );
     }, [filterText, resetPaginationToggle]);
@@ -210,17 +212,21 @@ const RoomsManagement = () => {
             name: '',
             cell: (row) => (
                 <>
-                    <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
-                        <Trash />
-                    </button>
-                    <button
-                        className="btn btn-outline btn-success mx-2"
-                        onClick={() => {
-                            handleUpdate(row.id);
-                        }}
-                    >
-                        <FolderEdit />
-                    </button>
+                    {user.role === 'ADMIN' && (
+                        <>
+                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                                <Trash />
+                            </button>
+                            <button
+                                className="btn btn-outline btn-success mx-2"
+                                onClick={() => {
+                                    handleUpdate(row.id);
+                                }}
+                            >
+                                <FolderEdit />
+                            </button>{' '}
+                        </>
+                    )}
                 </>
             ),
         },

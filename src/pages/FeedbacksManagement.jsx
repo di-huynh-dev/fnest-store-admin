@@ -101,6 +101,7 @@ const FeedbacksManagement = () => {
             name: 'Nội dung',
             selector: (row) => <div>{row.content}</div>,
             sortable: false,
+            width: '600px',
         },
     ];
     return (

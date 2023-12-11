@@ -2,28 +2,22 @@ import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import { SubmitButton, FormInput, Loading, TableLoader } from '../components';
 import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
-import { useFormik } from 'formik';
-import { toast } from 'react-toastify';
 import orderServices from '../services/orderServices';
 import { FolderEdit, Trash } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { BsSearchHeart } from 'react-icons/bs';
-import PreviewImage from '../utils/helpers';
 import { formatPrice, formatDate } from '../utils/helpers';
+import { toast } from 'react-toastify';
 
 const OrdersManagement = () => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const token = useSelector((state) => state.auth.loginAdmin?.token);
+    const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
     const [data, setData] = useState([]);
-    console.log(data);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedOrderStatus, setSelectedOrderStatus] = useState('');
     const [pending, setPending] = useState(true);
-    const [isUpdateMode, setIsUpdateMode] = useState(false);
-    const [filterText, setFilterText] = useState('');
-    const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
         if (!token) {
@@ -32,6 +26,7 @@ const OrdersManagement = () => {
             fetchData();
         }
     }, [token, navigate]);
+
     const fetchData = async () => {
         try {
             const resp = await orderServices.getAllOrders(token);
@@ -43,36 +38,68 @@ const OrdersManagement = () => {
             console.log(error);
         }
     };
-    const filteredItems = data.filter(
-        (item) => item.name && item.name.toLowerCase().includes(filterText.toLowerCase()),
-    );
 
+    const [filterText, setFilterText] = useState('');
+    const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+    const filteredItems = data.filter(
+        (item) => item.receiverName && item.receiverName.toLowerCase().includes(filterText.toLowerCase()),
+    );
     const subHeaderComponentMemo = useMemo(() => {
         return (
-            <div className="my-2">
+            <div className="">
                 <div className="relative">
                     <label className="input-group w-full">
                         <input
                             value={filterText}
                             onChange={(e) => setFilterText(e.target.value)}
-                            placeholder="Nhập từ khóa tìm kiếm..."
+                            placeholder="Nhập tên khách hàng..."
                             className="input input-bordered max-w-xs"
                         />
-                        <span className="bg-base-200">
-                            <BsSearchHeart className="text-primary" />
-                        </span>
                     </label>
                 </div>
             </div>
         );
     }, [filterText, resetPaginationToggle]);
 
+    const closeDialog = () => {
+        document.getElementById('dialog').close();
+        setIsConfirmationDialogOpen(false);
+    };
+
+    const handleUpdateStatus = (id) => {
+        setSelectedOrder(id);
+        setSelectedOrderStatus(selectedOrder.status); // Issue here
+        document.getElementById('dialog').showModal();
+    };
+
+    const handleStatusUpdate = async (e) => {
+        setIsLoading(true);
+        e.preventDefault();
+        if (user.role === 'STAFF') {
+            try {
+                const resp = await orderServices.updateOrderStatus(token, selectedOrder, selectedOrderStatus);
+                if (resp.status === 'OK') {
+                    toast.success('Thay đổi trạng thái thành công!');
+                    fetchData();
+                    setIsLoading(false);
+                    closeDialog();
+                }
+            } catch (error) {
+                setIsLoading(false);
+                console.error(error);
+            }
+        } else {
+            setIsLoading(false);
+            toast.error('Không có quyền thực hiện!');
+        }
+    };
+
     const columns = [
         {
             name: 'ID',
             selector: (row) => row.id,
             sortable: true,
-            width: '100px',
+            width: '60px',
         },
 
         {
@@ -100,6 +127,12 @@ const OrdersManagement = () => {
             width: '120px',
         },
         {
+            name: 'PT Thanh toán',
+            selector: (row) => <div className="text-sm">{row.paymentMethod}</div>,
+            sortable: false,
+            width: '120px',
+        },
+        {
             name: 'Tổng đơn',
             selector: (row) => <div className="text-sm">{formatPrice(row.total)}</div>,
             sortable: false,
@@ -115,52 +148,90 @@ const OrdersManagement = () => {
             name: 'Địa chỉ',
             selector: (row) => <div className="text-sm">{row.deliveryAddress.deliveryAddress}</div>,
             sortable: false,
-            width: '600px',
+            width: '200px',
         },
         {
             name: '',
             cell: (row) => (
                 <>
-                    <button
-                        className="btn btn-outline btn-success mx-2"
-                        onClick={() => {
-                            handleUpdate(row.id);
-                        }}
-                    >
-                        <FolderEdit />
-                    </button>
+                    {user.role === 'STAFF' ? (
+                        <button
+                            className="btn btn-outline btn-success mx-2"
+                            onClick={() => {
+                                handleUpdateStatus(row.id);
+                            }}
+                        >
+                            <FolderEdit />
+                        </button>
+                    ) : (
+                        <></>
+                    )}
                 </>
             ),
             width: '100px',
         },
     ];
     return (
-        <div>
-            <div className="container">
-                <DataTable
-                    title="QUẢN LÝ ĐƠN HÀNG FNEST"
-                    fixedHeader
-                    fixedHeaderScrollHeight="550px"
-                    direction="auto"
-                    responsive
-                    pagination
-                    columns={columns}
-                    data={data}
-                    highlightOnHover
-                    striped
-                    subHeader
-                    paginationResetDefaultPage={resetPaginationToggle}
-                    subHeaderComponent={subHeaderComponentMemo}
-                    persistTableHead
-                    progressPending={pending}
-                    progressComponent={<TableLoader />}
-                    customStyles={{
-                        table: {
-                            fontSize: '30px',
-                        },
-                    }}
-                />
-            </div>
+        <div className="m-10">
+            {isLoading ? (
+                <Loading />
+            ) : (
+                <>
+                    <dialog id="dialog" className="modal">
+                        <div className="modal-box">
+                            <form onSubmit={handleStatusUpdate}>
+                                <form method="dialog">
+                                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                                        ✕
+                                    </button>
+                                </form>
+                                <h3 className="font-bold text-lg text-center uppercase">
+                                    Cập nhật trạng thái đơn hàng
+                                </h3>
+                                <div className="flex items-center justify-center my-10">
+                                    <select
+                                        className="select select-bordered w-full max-w-xs"
+                                        value={selectedOrderStatus}
+                                        onChange={(e) => setSelectedOrderStatus(e.target.value)}
+                                    >
+                                        <option disabled value="">
+                                            Trạng thái đơn
+                                        </option>
+                                        <option value="CONFIRMED">Đã xác nhận</option>
+                                        <option value="IN_SHIPPING">Đang giao</option>
+                                        <option value="COMPLETED">Đã giao</option>
+                                        <option value="CANCELED">Đã hủy</option>
+                                    </select>
+                                </div>
+                                <SubmitButton text="Cập nhật" color="primary" />
+                            </form>
+                        </div>
+                    </dialog>
+                    <DataTable
+                        title="QUẢN LÝ ĐƠN HÀNG FNEST"
+                        fixedHeader
+                        fixedHeaderScrollHeight="550px"
+                        direction="auto"
+                        responsive
+                        pagination
+                        columns={columns}
+                        data={data}
+                        highlightOnHover
+                        striped
+                        subHeader
+                        paginationResetDefaultPage={resetPaginationToggle}
+                        subHeaderComponent={subHeaderComponentMemo}
+                        persistTableHead
+                        progressPending={pending}
+                        progressComponent={<TableLoader />}
+                        customStyles={{
+                            table: {
+                                fontSize: '30px',
+                            },
+                        }}
+                    />
+                </>
+            )}
         </div>
     );
 };

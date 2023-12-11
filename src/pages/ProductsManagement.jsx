@@ -16,9 +16,10 @@ import { formatPrice, formatDate } from '../utils/helpers';
 const ProductsManagement = () => {
     const navigate = useNavigate();
 
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
+    const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
     const categoryList = useSelector((state) => state.category.category?.currentCategory);
     const collectionList = useSelector((state) => state.collection.collection?.currentCollection);
-    const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [pending, setPending] = useState(true);
@@ -58,7 +59,7 @@ const ProductsManagement = () => {
         };
 
         return (
-            <div className="grid grid-cols-2 my-2">
+            <div className={'grid my-2' + (user.role === 'ADMIN' && 'grid grid-cols-2')}>
                 <div className="relative">
                     <label className="input-group w-full">
                         <input
@@ -72,17 +73,19 @@ const ProductsManagement = () => {
                         </span>
                     </label>
                 </div>
-                <div className="flex items-center mx-5">
-                    <button
-                        className="btn bg-primary btn-ghost text-white"
-                        onClick={() => {
-                            setIsUpdateMode(false);
-                            document.getElementById('dialog').showModal();
-                        }}
-                    >
-                        + Thêm sản phẩm
-                    </button>
-                </div>
+                {user.role === 'ADMIN' && (
+                    <div className="flex items-center mx-5">
+                        <button
+                            className="btn bg-primary btn-ghost text-white"
+                            onClick={() => {
+                                setIsUpdateMode(false);
+                                document.getElementById('dialog').showModal();
+                            }}
+                        >
+                            + Thêm sản phẩm
+                        </button>
+                    </div>
+                )}
             </div>
         );
     }, [filterText, resetPaginationToggle]);
@@ -280,7 +283,7 @@ const ProductsManagement = () => {
             name: 'ID',
             selector: (row) => row.id,
             sortable: true,
-            width: '70px',
+            width: '60px',
         },
         {
             name: 'Hình ảnh',
@@ -292,11 +295,17 @@ const ProductsManagement = () => {
             name: 'Tên sản phẩm',
             selector: (row) => <div className="text-sm">{row.name}</div>,
             sortable: false,
-            width: '250px',
+            width: '160px',
         },
         {
             name: 'Giá',
             selector: (row) => <div className="text-sm">{formatPrice(row.price)}</div>,
+            sortable: false,
+            width: '120px',
+        },
+        {
+            name: 'Giá giảm',
+            selector: (row) => <div className="text-sm">{formatPrice(row.salePrice)}</div>,
             sortable: false,
             width: '120px',
         },
@@ -310,7 +319,7 @@ const ProductsManagement = () => {
             name: 'Chất liệu',
             selector: (row) => <div className="text-sm">{row.material}</div>,
             sortable: false,
-            width: '230px',
+            width: '160px',
         },
         {
             name: 'Kho',
@@ -329,7 +338,7 @@ const ProductsManagement = () => {
                     </>
                 ),
             sortable: false,
-            width: '100px',
+            width: '80px',
         },
         {
             name: 'Nổi bật',
@@ -342,35 +351,28 @@ const ProductsManagement = () => {
                     <></>
                 ),
             sortable: false,
-            width: '100px',
+            width: '80px',
         },
-        {
-            name: 'Danh mục',
-            selector: (row) => <div className="text-sm">{row.categoryId}</div>,
-            sortable: false,
-            width: '100px',
-        },
-        {
-            name: 'Bộ sưu tập',
-            selector: (row) => <div className="text-sm">{row.collectionId}</div>,
-            sortable: false,
-            width: '100px',
-        },
+
         {
             name: '',
             cell: (row) => (
                 <>
-                    <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
-                        <Trash />
-                    </button>
-                    <button
-                        className="btn btn-outline btn-success mx-2"
-                        onClick={() => {
-                            handleUpdate(row.id);
-                        }}
-                    >
-                        <FolderEdit />
-                    </button>
+                    {user.role === 'ADMIN' && (
+                        <>
+                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                                <Trash />
+                            </button>
+                            <button
+                                className="btn btn-outline btn-success mx-2"
+                                onClick={() => {
+                                    handleUpdate(row.id);
+                                }}
+                            >
+                                <FolderEdit />
+                            </button>
+                        </>
+                    )}
                 </>
             ),
             width: '100px',
@@ -378,203 +380,208 @@ const ProductsManagement = () => {
     ];
 
     return (
-        <div className="mx-10 my-10">
-            {isLoading ? <Loading></Loading> : <></>}
-            <dialog id="dialog" className="modal">
-                <div className="modal-box max-w-6xl">
-                    <h3 className="font-bold text-2xl text-center">Thêm Sản phẩm mới</h3>
-                    <form className="my-2" onSubmit={formik.handleSubmit}>
-                        <div className="my-2 grid grid-cols-3 space-x-5">
-                            <div
-                                onClick={() => {
-                                    closeDialog();
-                                }}
-                                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                            >
-                                X
-                            </div>
-                            <div className="space-x-10">
-                                <div>
-                                    <FormInput
-                                        type="text"
-                                        label="Tên sản phẩm"
-                                        name="name"
-                                        placeholder="Nhập tên sản phẩm..."
-                                        onchange={formik.handleChange}
-                                    />
-                                    {formik.errors.name && (
-                                        <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
-                                    )}
-                                    <FormInput
-                                        type="text"
-                                        label="Chất liệu"
-                                        name="material"
-                                        placeholder="Chất liệu..."
-                                        onchange={formik.handleChange}
-                                    />
-                                    {formik.errors.material && (
-                                        <span className="text-error text-sm p-1 ">{formik.errors.material}</span>
-                                    )}
-                                    <FormInput
-                                        type="text"
-                                        label="Số lượng trong kho"
-                                        name="inStock"
-                                        placeholder="Số lượng còn..."
-                                        onchange={formik.handleChange}
-                                    />
-                                    {formik.errors.inStock && (
-                                        <span className="text-error text-sm p-1 ">{formik.errors.inStock}</span>
-                                    )}
-                                    <div className="my-4">
-                                        <label className="block text-sm">Chọn Danh mục</label>
-                                        <select
-                                            name="categoryId" // Use the correct field name
-                                            value={formik.values.categoryId}
-                                            onChange={formik.handleChange} // Use formik.handleChange
-                                            className="select select-bordered mt-1 p-2 rounded-md w-full"
-                                        >
-                                            <option value="">-- Chọn danh mục --</option>
-                                            {categoryList.map((category) => (
-                                                <option key={category.id} value={category.id}>
-                                                    {category.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {/* {selectedCategoryId === '' && (
-                                            <p className="text-error text-sm p-1">Vui lòng chọn phòng!</p>
-                                        )} */}
-                                    </div>
-
-                                    <FormInput
-                                        type="file"
-                                        label="Thumbnail"
-                                        name="thumbnail"
-                                        onchange={(e) => formik.setFieldValue('thumbnail', e.target.files[0])}
-                                    />
-                                    {formik.errors.thumbnail && (
-                                        <p className="text-error text-sm p-1">{formik.errors.thumbnail}</p>
-                                    )}
-                                    {formik.values.thumbnail && <PreviewImage file={formik.values.thumbnail} />}
-                                </div>
-                            </div>
-                            <div>
-                                <FormInput
-                                    type="text"
-                                    label="Giá nhập"
-                                    name="price"
-                                    placeholder="Giá nhập..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.price && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.price}</span>
-                                )}
-                                <FormInput
-                                    type="text"
-                                    label="Kích thước"
-                                    name="size"
-                                    placeholder="Kích thước..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.size && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.size}</span>
-                                )}
-                                <FormInput
-                                    type="checkbox"
-                                    label="Nổi bật"
-                                    name="featured"
-                                    checked={formik.values.featured}
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.featured && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.featured}</span>
-                                )}
-                                <div className="my-4">
-                                    <label className="block text-sm">Chọn Bộ sưu tập</label>
-                                    <select
-                                        name="collectionId" // Use the correct field name
-                                        value={formik.values.collectionId}
-                                        onChange={formik.handleChange} // Use formik.handleChange
-                                        className="select select-bordered mt-1 p-2 rounded-md w-full"
+        <div className="m-10">
+            {isLoading ? (
+                <Loading></Loading>
+            ) : (
+                <>
+                    <dialog id="dialog" className="modal">
+                        <div className="modal-box max-w-6xl">
+                            <h3 className="font-bold text-2xl text-center">Thêm Sản phẩm mới</h3>
+                            <form className="my-2" onSubmit={formik.handleSubmit}>
+                                <div className="my-2 grid grid-cols-3 space-x-5">
+                                    <div
+                                        onClick={() => {
+                                            closeDialog();
+                                        }}
+                                        className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
                                     >
-                                        <option value="">-- Chọn bộ sưu tập --</option>
-                                        {collectionList.map((collection) => (
-                                            <option key={collection.id} value={collection.id}>
-                                                {collection.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {/* {selectedCategoryId === '' && (
+                                        X
+                                    </div>
+                                    <div className="space-x-10">
+                                        <div>
+                                            <FormInput
+                                                type="text"
+                                                label="Tên sản phẩm"
+                                                name="name"
+                                                placeholder="Nhập tên sản phẩm..."
+                                                onchange={formik.handleChange}
+                                            />
+                                            {formik.errors.name && (
+                                                <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
+                                            )}
+                                            <FormInput
+                                                type="text"
+                                                label="Chất liệu"
+                                                name="material"
+                                                placeholder="Chất liệu..."
+                                                onchange={formik.handleChange}
+                                            />
+                                            {formik.errors.material && (
+                                                <span className="text-error text-sm p-1 ">
+                                                    {formik.errors.material}
+                                                </span>
+                                            )}
+                                            <FormInput
+                                                type="text"
+                                                label="Số lượng trong kho"
+                                                name="inStock"
+                                                placeholder="Số lượng còn..."
+                                                onchange={formik.handleChange}
+                                            />
+                                            {formik.errors.inStock && (
+                                                <span className="text-error text-sm p-1 ">{formik.errors.inStock}</span>
+                                            )}
+                                            <div className="my-4">
+                                                <label className="block text-sm">Chọn Danh mục</label>
+                                                <select
+                                                    name="categoryId" // Use the correct field name
+                                                    value={formik.values.categoryId}
+                                                    onChange={formik.handleChange} // Use formik.handleChange
+                                                    className="select select-bordered mt-1 p-2 rounded-md w-full"
+                                                >
+                                                    <option value="">-- Chọn danh mục --</option>
+                                                    {categoryList.map((category) => (
+                                                        <option key={category.id} value={category.id}>
+                                                            {category.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {/* {selectedCategoryId === '' && (
                                             <p className="text-error text-sm p-1">Vui lòng chọn phòng!</p>
                                         )} */}
+                                            </div>
+
+                                            <FormInput
+                                                type="file"
+                                                label="Thumbnail"
+                                                name="thumbnail"
+                                                onchange={(e) => formik.setFieldValue('thumbnail', e.target.files[0])}
+                                            />
+                                            {formik.errors.thumbnail && (
+                                                <p className="text-error text-sm p-1">{formik.errors.thumbnail}</p>
+                                            )}
+                                            {formik.values.thumbnail && <PreviewImage file={formik.values.thumbnail} />}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <FormInput
+                                            type="text"
+                                            label="Giá nhập"
+                                            name="price"
+                                            placeholder="Giá nhập..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.price && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.price}</span>
+                                        )}
+                                        <FormInput
+                                            type="text"
+                                            label="Kích thước"
+                                            name="size"
+                                            placeholder="Kích thước..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.size && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.size}</span>
+                                        )}
+                                        <FormInput
+                                            type="checkbox"
+                                            label="Nổi bật"
+                                            name="featured"
+                                            checked={formik.values.featured}
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.featured && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.featured}</span>
+                                        )}
+                                        <div className="my-4">
+                                            <label className="block text-sm">Chọn Bộ sưu tập</label>
+                                            <select
+                                                name="collectionId" // Use the correct field name
+                                                value={formik.values.collectionId}
+                                                onChange={formik.handleChange} // Use formik.handleChange
+                                                className="select select-bordered mt-1 p-2 rounded-md w-full"
+                                            >
+                                                <option value="">-- Chọn bộ sưu tập --</option>
+                                                {collectionList.map((collection) => (
+                                                    <option key={collection.id} value={collection.id}>
+                                                        {collection.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {/* {selectedCategoryId === '' && (
+                                            <p className="text-error text-sm p-1">Vui lòng chọn phòng!</p>
+                                        )} */}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <FormInput
+                                            type="text"
+                                            label="Giá bán"
+                                            name="salePrice"
+                                            placeholder="Nhập giá sản phẩm..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.salePrice && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.salePrice}</span>
+                                        )}
+                                        <FormInput
+                                            type="text"
+                                            label="Mô tả sản phẩm"
+                                            name="description"
+                                            placeholder="Mô tả sản phẩm..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.description && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.description}</span>
+                                        )}
+                                        <FormInput
+                                            type="file"
+                                            label="Hình ảnh sản phẩm"
+                                            name="images"
+                                            multiple="true"
+                                            onchange={(e) => formik.setFieldValue('images', e.target.files)}
+                                        />
+                                        {formik.errors.images && (
+                                            <p className="text-error text-sm p-1">{formik.errors.images}</p>
+                                        )}
+                                        {/* {formik.values.images && <PreviewImage file={formik.values.images} />} */}
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <FormInput
-                                    type="text"
-                                    label="Giá bán"
-                                    name="salePrice"
-                                    placeholder="Nhập giá sản phẩm..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.salePrice && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.salePrice}</span>
-                                )}
-                                <FormInput
-                                    type="text"
-                                    label="Mô tả sản phẩm"
-                                    name="description"
-                                    placeholder="Mô tả sản phẩm..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.description && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.description}</span>
-                                )}
-                                <FormInput
-                                    type="file"
-                                    label="Hình ảnh sản phẩm"
-                                    name="images"
-                                    multiple="true"
-                                    onchange={(e) => formik.setFieldValue('images', e.target.files)}
-                                />
-                                {formik.errors.images && (
-                                    <p className="text-error text-sm p-1">{formik.errors.images}</p>
-                                )}
-                                {/* {formik.values.images && <PreviewImage file={formik.values.images} />} */}
-                            </div>
+                                <div className="flex items-center mt-3 text-center justify-center">
+                                    <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
+                                </div>
+                            </form>
                         </div>
-                        <div className="flex items-center mt-3 text-center justify-center">
-                            <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
-                        </div>
-                    </form>
-                </div>
-            </dialog>
-            <div className="container">
-                <DataTable
-                    title="QUẢN LÝ DANH MỤC SẢN PHẨM FNEST"
-                    fixedHeader
-                    fixedHeaderScrollHeight="550px"
-                    direction="auto"
-                    responsive
-                    pagination
-                    columns={columns}
-                    data={filteredItems}
-                    highlightOnHover
-                    striped
-                    subHeader
-                    paginationResetDefaultPage={resetPaginationToggle}
-                    subHeaderComponent={subHeaderComponentMemo}
-                    persistTableHead
-                    progressPending={pending}
-                    progressComponent={<TableLoader />}
-                    expandableRows
-                    expandableRowsComponent={ExpandedComponent}
-                    customStyles={{
-                        table: {
-                            fontSize: '30px',
-                        },
-                    }}
-                />
-            </div>
+                    </dialog>
+                    <DataTable
+                        title="QUẢN LÝ DANH MỤC SẢN PHẨM FNEST"
+                        fixedHeader
+                        fixedHeaderScrollHeight="550px"
+                        direction="auto"
+                        responsive
+                        pagination
+                        columns={columns}
+                        data={filteredItems}
+                        highlightOnHover
+                        striped
+                        subHeader
+                        paginationResetDefaultPage={resetPaginationToggle}
+                        subHeaderComponent={subHeaderComponentMemo}
+                        persistTableHead
+                        progressPending={pending}
+                        progressComponent={<TableLoader />}
+                        expandableRows
+                        expandableRowsComponent={ExpandedComponent}
+                        customStyles={{
+                            table: {
+                                fontSize: '30px',
+                            },
+                        }}
+                    />
+                </>
+            )}
         </div>
     );
 };

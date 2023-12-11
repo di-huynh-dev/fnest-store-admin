@@ -40,7 +40,7 @@ const NewsManagement = () => {
 
     const subHeaderComponentMemo = useMemo(() => {
         return (
-            <div className="grid grid-cols-2 my-2">
+            <div className="grid my-2">
                 <div className="flex items-center mx-5">
                     <button
                         className="btn bg-primary btn-ghost text-white"
@@ -188,7 +188,7 @@ const NewsManagement = () => {
             name: 'ID',
             selector: (row) => row.id,
             sortable: true,
-            width: '100px',
+            width: '60px',
         },
         {
             name: 'Hình ảnh',
@@ -200,7 +200,7 @@ const NewsManagement = () => {
                 </div>
             ),
             sortable: false,
-            width: '200px',
+            width: '100px',
         },
         {
             name: 'Tiêu đề',
@@ -215,7 +215,7 @@ const NewsManagement = () => {
             width: '800px',
         },
         {
-            name: 'Actions',
+            name: '',
             cell: (row) => (
                 <>
                     <button
@@ -231,6 +231,7 @@ const NewsManagement = () => {
                     </button>
                 </>
             ),
+            width: '100px',
         },
     ];
     return (

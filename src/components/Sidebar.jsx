@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
     User,
     BarChart,
-    UserSquare,
     ShoppingBasket,
     MenuSquare,
     ListOrdered,
@@ -15,23 +14,44 @@ import {
     LucideBookA,
     MessageSquarePlus,
 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../assets/logo/Logo.png';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 const variants = {
     expanded: { width: '12%' },
     nonexpanded: { width: '6%' },
 };
 
+const transition = {
+    type: 'spring',
+    damping: 20,
+    stiffness: 100,
+};
+
 const Sidebar = () => {
     const [isExpanded, setIsExpanded] = useState(true);
+    const navigate = useNavigate();
     const { t } = useTranslation('translation');
+    const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/admin/auth/login');
+        }
+    }, [token, navigate]);
+
     const navlinks = [
         {
             title: 'Dashboard',
-            items: [{ id: 1, link: 'Dashboard', icon: <BarChart />, to: '/' }],
+            items: [
+                { id: 1, link: 'Dashboard', icon: <BarChart />, to: '/' },
+                { id: 8, link: t('sales'), icon: <LucideBadgeDollarSign />, to: 'admin/sales' },
+            ],
         },
         {
             title: 'Collections & Rooms',
@@ -50,11 +70,8 @@ const Sidebar = () => {
             ],
         },
         {
-            title: 'Orders & Sales',
-            items: [
-                { id: 7, link: t('orders'), icon: <ListOrdered />, to: 'admin/orders' },
-                { id: 8, link: t('sales'), icon: <LucideBadgeDollarSign />, to: 'admin/sales' },
-            ],
+            title: 'Orders',
+            items: [{ id: 7, link: t('orders'), icon: <ListOrdered />, to: 'admin/orders' }],
         },
         {
             title: 'Users',
@@ -86,8 +103,10 @@ const Sidebar = () => {
         <motion.div
             animate={isExpanded ? 'expanded' : 'nonexpanded'}
             variants={variants}
+            transition={transition}
             className={
-                'flex flex-col border border-r-1 fixed sidebar bg-[#FDFDFD] ' + (isExpanded ? ' px-8 py-4' : ' p-6 ')
+                'flex flex-col border border-r-1 h-full fixed sidebar bg-[#FDFDFD] ' +
+                (isExpanded ? ' md:w-1/4 lg:w-1/5 px-4 py-8' : ' w-1/3 md:w-1/6 p-6 ')
             }
         >
             <div
@@ -102,30 +121,45 @@ const Sidebar = () => {
                 </div>
             </div>
             <div className="flex flex-col space-y-3">
-                {navlinks.map((group) => (
-                    <div key={group.title}>
-                        {isExpanded && <div className="text-sm font-semibold text-gray-600 p-2">{group.title}</div>}
-                        {group.items.map((nav) => (
-                            <NavLink
-                                key={nav.id}
-                                to={nav.to}
-                                className={`nav-links w-full rounded-lg  ${
-                                    selectedItem === nav.id ? 'bg-secondary text-white' : ''
-                                }`}
-                                onClick={() => handleLinkClick(nav.id)}
-                            >
-                                <div
-                                    className={`${
-                                        selectedItem === nav.id ? 'bg-primary hover:bg-primary text-white' : ''
-                                    } flex space-x-3 w-full p-2 rounded hover:bg-base-200 hover:text`}
-                                >
-                                    {nav.icon}
-                                    <span className={!isExpanded ? 'hidden' : 'block'}>{nav.link}</span>
-                                </div>
-                            </NavLink>
-                        ))}
-                    </div>
-                ))}
+                <div className="overflow-y-auto">
+                    {navlinks.map((group) => (
+                        <div key={group.title}>
+                            {isExpanded && <div className="text-sm font-semibold text-gray-600 p-2">{group.title}</div>}
+                            {group.items.map((nav) => {
+                                if (
+                                    (group.title === 'Users' ||
+                                        group.title === 'Newsletter' ||
+                                        group.title === 'Users' ||
+                                        group.title === 'Dashboard') &&
+                                    user.role !== 'ADMIN'
+                                ) {
+                                    return null;
+                                } else
+                                    return (
+                                        <NavLink
+                                            key={nav.id}
+                                            to={nav.to}
+                                            className={`nav-links w-full rounded-lg  ${
+                                                selectedItem === nav.id ? 'bg-secondary text-white' : ''
+                                            }`}
+                                            onClick={() => handleLinkClick(nav.id)}
+                                        >
+                                            <div
+                                                className={`${
+                                                    selectedItem === nav.id
+                                                        ? 'bg-primary hover:bg-primary text-white'
+                                                        : ''
+                                                } flex space-x-3 text-sm w-full p-1 rounded hover:bg-base-200 hover:text`}
+                                            >
+                                                {nav.icon}
+                                                <span className={!isExpanded ? 'hidden' : 'block'}>{nav.link}</span>
+                                            </div>
+                                        </NavLink>
+                                    );
+                            })}
+                        </div>
+                    ))}
+                </div>
             </div>
         </motion.div>
     );
