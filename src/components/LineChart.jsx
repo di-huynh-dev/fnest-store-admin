@@ -19,7 +19,7 @@ const LineChart = ({ data }) => {
         datasets: [
             {
                 label: 'Số lượng đơn hàng',
-                data: data.numOfOrderByDays.map((item) => item.amount),
+                data: data.incomeByDays.map((item) => item.incomeByDay),
                 borderColor: 'rgb(255, 99, 132)',
                 backgroundColor: 'rgba(255, 99, 132, 0.5)',
             },
@@ -35,7 +35,7 @@ const LineChart = ({ data }) => {
             },
             title: {
                 display: true,
-                text: 'Thống kê số lượng đơn hàng theo ngày',
+                text: 'Thống kê doanh thu theo ngày',
             },
         },
         scales: {
@@ -48,9 +48,9 @@ const LineChart = ({ data }) => {
             y: {
                 title: {
                     display: true,
-                    text: 'Số lượng đơn hàng',
+                    text: 'Số tiền(triệu đồng)',
                 },
-                max: Math.max(...data.numOfOrderByDays.map((item) => item.amount)) + 1,
+                max: Math.max(...data.incomeByDays.map((item) => item.incomeByDay)) + 1,
                 stepSize: 1,
             },
         },
