@@ -212,7 +212,7 @@ const NewsManagement = () => {
             name: 'Nội dung',
             selector: (row) => <div>{row.description}</div>,
             sortable: false,
-            width: '800px',
+            width: '700px',
         },
         {
             name: '',

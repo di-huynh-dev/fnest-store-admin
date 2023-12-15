@@ -220,7 +220,6 @@ const ProductsManagement = () => {
             thumbnail: Yup.mixed().required('Vui lòng tải lên hình ảnh!'),
             images: Yup.mixed().required('Vui lòng tải lên hình ảnh!'),
             price: Yup.string().required('Vui lòng nhập thông tin!'),
-            salePrice: Yup.string().required('Vui lòng nhập thông tin!'),
             description: Yup.string().required('Vui lòng nhập thông tin!'),
             size: Yup.string().required('Vui lòng nhập thông tin!'),
             material: Yup.string().required('Vui lòng nhập thông tin!'),
@@ -441,11 +440,12 @@ const ProductsManagement = () => {
                                                     className="select select-bordered mt-1 p-2 rounded-md w-full"
                                                 >
                                                     <option value="">-- Chọn danh mục --</option>
-                                                    {categoryList.map((category) => (
-                                                        <option key={category.id} value={category.id}>
-                                                            {category.name}
-                                                        </option>
-                                                    ))}
+                                                    {categoryList &&
+                                                        categoryList.map((category) => (
+                                                            <option key={category.id} value={category.id}>
+                                                                {category.name}
+                                                            </option>
+                                                        ))}
                                                 </select>
                                                 {/* {selectedCategoryId === '' && (
                                             <p className="text-error text-sm p-1">Vui lòng chọn phòng!</p>
@@ -467,9 +467,9 @@ const ProductsManagement = () => {
                                     <div>
                                         <FormInput
                                             type="text"
-                                            label="Giá nhập"
+                                            label="Giá gốc"
                                             name="price"
-                                            placeholder="Giá nhập..."
+                                            placeholder="Giá gốc..."
                                             onchange={formik.handleChange}
                                         />
                                         {formik.errors.price && (
@@ -504,11 +504,12 @@ const ProductsManagement = () => {
                                                 className="select select-bordered mt-1 p-2 rounded-md w-full"
                                             >
                                                 <option value="">-- Chọn bộ sưu tập --</option>
-                                                {collectionList.map((collection) => (
-                                                    <option key={collection.id} value={collection.id}>
-                                                        {collection.name}
-                                                    </option>
-                                                ))}
+                                                {collectionList &&
+                                                    collectionList.map((collection) => (
+                                                        <option key={collection.id} value={collection.id}>
+                                                            {collection.name}
+                                                        </option>
+                                                    ))}
                                             </select>
                                             {/* {selectedCategoryId === '' && (
                                             <p className="text-error text-sm p-1">Vui lòng chọn phòng!</p>
@@ -518,14 +519,12 @@ const ProductsManagement = () => {
                                     <div>
                                         <FormInput
                                             type="text"
-                                            label="Giá bán"
+                                            label="Giá giảm"
                                             name="salePrice"
-                                            placeholder="Nhập giá sản phẩm..."
+                                            placeholder="Nhập giá giảm..."
                                             onchange={formik.handleChange}
                                         />
-                                        {formik.errors.salePrice && (
-                                            <span className="text-error text-sm p-1 ">{formik.errors.salePrice}</span>
-                                        )}
+
                                         <FormInput
                                             type="text"
                                             label="Mô tả sản phẩm"

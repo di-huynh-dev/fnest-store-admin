@@ -40,7 +40,7 @@ const Sidebar = () => {
     const token = useSelector((state) => state.auth.loginAdmin?.token);
 
     useEffect(() => {
-        if (!token) {
+        if (!token || !user) {
             navigate('/admin/auth/login');
         }
     }, [token, navigate]);
@@ -128,6 +128,7 @@ const Sidebar = () => {
                                         group.title === 'Newsletter' ||
                                         group.title === 'Users' ||
                                         group.title === 'Dashboard') &&
+                                    user &&
                                     user.role !== 'ADMIN'
                                 ) {
                                     return null;
