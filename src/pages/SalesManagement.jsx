@@ -19,7 +19,7 @@ const SalesManagement = () => {
 
     const getCurrentMonth = () => {
         const currentDate = new Date();
-        return currentDate.getMonth() + 1; // Adding 1 because months are zero-based
+        return currentDate.getMonth() + 1;
     };
 
     const getCurrentYear = () => {
@@ -34,8 +34,9 @@ const SalesManagement = () => {
     useEffect(() => {
         if (!token) {
             navigate('/admin/auth/login');
+        } else {
+            fetchAndUpdateData(selectedMonth, selectedYear);
         }
-        fetchAndUpdateData(selectedMonth, selectedYear);
     }, [token, selectedMonth, selectedYear]);
 
     const fetchData = async (selectedMonth, selectedYear) => {

@@ -18,6 +18,8 @@ const OrdersManagement = () => {
     const [selectedOrderStatus, setSelectedOrderStatus] = useState('');
     const [pending, setPending] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [activeTab, setActiveTab] = useState('all');
+    const filteredOrders = activeTab === 'all' ? data : data.filter((order) => order.status === activeTab);
 
     useEffect(() => {
         if (!token) {
@@ -41,21 +43,47 @@ const OrdersManagement = () => {
 
     const [filterText, setFilterText] = useState('');
     const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
-    const filteredItems = data.filter(
-        (item) => item.receiverName && item.receiverName.toLowerCase().includes(filterText.toLowerCase()),
-    );
+
     const subHeaderComponentMemo = useMemo(() => {
         return (
-            <div className="">
-                <div className="relative">
-                    <label className="input-group w-full">
-                        <input
-                            value={filterText}
-                            onChange={(e) => setFilterText(e.target.value)}
-                            placeholder="Nhập tên khách hàng..."
-                            className="input input-bordered max-w-xs"
-                        />
-                    </label>
+            <div className="flex items-center flex-auto">
+                <div role="tablist" className="flex-start tabs tabs-bordered">
+                    <button
+                        onClick={() => setActiveTab('all')}
+                        className={`tab ${activeTab === 'all' ? 'tab-active' : ''}`}
+                    >
+                        Tất cả ({data.length})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('PENDING')}
+                        className={`tab ${activeTab === 'PENDING' ? 'tab-active' : ''}`}
+                    >
+                        Chờ xác nhận
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('IN_SHIPPING')}
+                        className={`tab ${activeTab === 'IN_SHIPPING' ? 'tab-active' : ''}`}
+                    >
+                        Đang giao
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('COMPLETED')}
+                        className={`tab ${activeTab === 'COMPLETED' ? 'tab-active' : ''}`}
+                    >
+                        Đã giao
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('REVIEWED')}
+                        className={`tab ${activeTab === 'REVIEWED' ? 'tab-active' : ''}`}
+                    >
+                        Đã hoàn thành
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('CANCELED')}
+                        className={`tab ${activeTab === 'CANCELED' ? 'tab-active' : ''}`}
+                    >
+                        Đã hủy
+                    </button>
                 </div>
             </div>
         );
@@ -148,7 +176,7 @@ const OrdersManagement = () => {
             name: 'Địa chỉ',
             selector: (row) => <div className="text-sm">{row.deliveryAddress.deliveryAddress}</div>,
             sortable: false,
-            width: '200px',
+            width: '150px',
         },
         {
             name: '',
@@ -278,7 +306,7 @@ const OrdersManagement = () => {
                         responsive
                         pagination
                         columns={columns}
-                        data={data}
+                        data={filteredOrders}
                         highlightOnHover
                         striped
                         subHeader
