@@ -8,7 +8,7 @@ const HomeLayout = () => {
             <main className="">
                 <div className="flex relative">
                     <Sidebar />
-                    <div className="min-h-screen w-full ml-[240px]">
+                    <div className="min-h-screen w-full lg:ml-[240px] ml-[100px]">
                         <Header />
                         <Outlet />
                     </div>

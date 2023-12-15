@@ -14,8 +14,8 @@ const SalesManagement = () => {
     const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedMonth, setSelectedMonth] = useState(null);
-    const [selectedYear, setSelectedYear] = useState(null);
+    const [selectedMonth, setSelectedMonth] = useState(12);
+    const [selectedYear, setSelectedYear] = useState(2023);
 
     const getCurrentMonth = () => {
         const currentDate = new Date();
