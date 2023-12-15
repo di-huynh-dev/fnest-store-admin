@@ -103,7 +103,7 @@ const Sidebar = () => {
             transition={transition}
             className={
                 'flex flex-col border border-r-1 h-full fixed sidebar bg-[#FDFDFD] ' +
-                (isExpanded ? ' md:w-1/4 lg:w-1/5 px-4 py-8' : ' w-1/3 md:w-1/6 p-6 ')
+                (isExpanded ? ' w-1/4 lg:w-1/5 px-4 py-8' : ' w-1/4 md:w-1/6 p-6 ')
             }
         >
             <div

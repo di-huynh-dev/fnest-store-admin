@@ -52,7 +52,7 @@ const OrdersManagement = () => {
                         onClick={() => setActiveTab('all')}
                         className={`tab ${activeTab === 'all' ? 'tab-active' : ''}`}
                     >
-                        Tất cả ({data.length})
+                        Tất cả
                     </button>
                     <button
                         onClick={() => setActiveTab('PENDING')}
