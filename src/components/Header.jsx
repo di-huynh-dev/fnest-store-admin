@@ -81,7 +81,7 @@ const Header = () => {
                             >
                                 X
                             </div>
-                            <div className="text-center space-x-10">
+                            <div className="text-center">
                                 <p className="my-10">Bạn chắc chắn đăng xuất?</p>
                                 <div className="flex items-center mt-3 text-center justify-center">
                                     <button className="btn btn-primary text-white">Xác nhận</button>

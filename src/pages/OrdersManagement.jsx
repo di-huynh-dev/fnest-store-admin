@@ -61,6 +61,12 @@ const OrdersManagement = () => {
                         Chờ xác nhận
                     </button>
                     <button
+                        onClick={() => setActiveTab('CONFIRMED')}
+                        className={`tab ${activeTab === 'CONFIRMED' ? 'tab-active' : ''}`}
+                    >
+                        Đã xác nhận
+                    </button>
+                    <button
                         onClick={() => setActiveTab('IN_SHIPPING')}
                         className={`tab ${activeTab === 'IN_SHIPPING' ? 'tab-active' : ''}`}
                     >
@@ -94,9 +100,9 @@ const OrdersManagement = () => {
         setIsConfirmationDialogOpen(false);
     };
 
-    const handleUpdateStatus = (id) => {
+    const handleUpdateStatus = (id, status) => {
         setSelectedOrder(id);
-        setSelectedOrderStatus(selectedOrder.status); // Issue here
+        setSelectedOrderStatus(status);
         document.getElementById('dialog').showModal();
     };
 
@@ -186,7 +192,7 @@ const OrdersManagement = () => {
                         <button
                             className="btn btn-outline btn-success mx-2"
                             onClick={() => {
-                                handleUpdateStatus(row.id);
+                                handleUpdateStatus(row.id, row.status);
                             }}
                         >
                             <FolderEdit />
@@ -279,22 +285,12 @@ const OrdersManagement = () => {
                                 <h3 className="font-bold text-lg text-center uppercase">
                                     Cập nhật trạng thái đơn hàng
                                 </h3>
-                                <div className="flex items-center justify-center my-10">
-                                    <select
-                                        className="select select-bordered w-full max-w-xs"
-                                        value={selectedOrderStatus}
-                                        onChange={(e) => setSelectedOrderStatus(e.target.value)}
-                                    >
-                                        <option disabled value="">
-                                            Trạng thái đơn
-                                        </option>
-                                        <option value="CONFIRMED">Đã xác nhận</option>
-                                        <option value="IN_SHIPPING">Đang giao</option>
-                                        <option value="COMPLETED">Đã giao</option>
-                                        <option value="CANCELED">Đã hủy</option>
-                                    </select>
+                                <div className="text-center">
+                                    <p className="my-10">Bạn muốn cập nhật trạng thái đơn hàng?</p>
+                                    <div className="flex items-center mt-3 text-center justify-center">
+                                        <button className="btn btn-primary text-white">Xác nhận</button>
+                                    </div>
                                 </div>
-                                <SubmitButton text="Cập nhật" color="primary" />
                             </form>
                         </div>
                     </dialog>
