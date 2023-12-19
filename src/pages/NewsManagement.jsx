@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { toast } from 'react-toastify';
 import newsService from '../services/newsService';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const NewsManagement = () => {
     const navigate = useNavigate();

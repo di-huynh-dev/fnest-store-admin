@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logOutSuccess } from '../features/authSlice';
@@ -19,7 +19,11 @@ const Header = () => {
         toast.success('Đăng xuất tài khoản thành công!');
     };
     const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
-
+    useEffect(() => {
+        if (user === null) {
+            navigate('/admin/auth/login');
+        }
+    }, [user, navigate]);
     const { t } = useTranslation('translation');
     const [currentLanguage, setCurrentLanguage] = useState('vie');
     const [flagImage, setFlagImage] = useState(vie);
@@ -45,29 +49,31 @@ const Header = () => {
                             >
                                 X
                             </div>
-                            <div className="">
-                                <div className="flex items-center gap-1">
-                                    <p className="font-bold">Mã người dùng:</p>
-                                    <p>{user.id}</p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <p className="font-bold">Username:</p>
-                                    <p>{user.username}</p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <p className="font-bold">Họ và tên:</p>
-                                    <p>{user.fullName}</p>
-                                </div>
+                            {user != null && (
+                                <div className="">
+                                    <div className="flex items-center gap-1">
+                                        <p className="font-bold">Mã người dùng:</p>
+                                        <p>{user.id}</p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <p className="font-bold">Username:</p>
+                                        <p>{user.username}</p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <p className="font-bold">Họ và tên:</p>
+                                        <p>{user.fullName}</p>
+                                    </div>
 
-                                <div className="flex items-center gap-1">
-                                    <p className="font-bold">Vai trò:</p>
-                                    <p>{user.role}</p>
+                                    <div className="flex items-center gap-1">
+                                        <p className="font-bold">Vai trò:</p>
+                                        <p>{user.role}</p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <p className="font-bold">Trạng thái người dùng:</p>
+                                        {user.status ? <p>Đang sử dụng</p> : <p>Bị vô hiệu hóa</p>}
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                    <p className="font-bold">Trạng thái người dùng:</p>
-                                    {user.status ? <p>Đang sử dụng</p> : <p>Bị vô hiệu hóa</p>}
-                                </div>
-                            </div>
+                            )}
                         </form>
                     </div>
                 </dialog>

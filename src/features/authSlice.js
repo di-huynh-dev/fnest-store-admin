@@ -17,7 +17,6 @@ const authSlice = createSlice({
             state.loginAdmin.error = false;
         },
         setToken: (state, action) => {
-            // Lưu token trong trạng thái
             state.loginAdmin.token = action.payload;
         },
         logOutSuccess: (state) => {

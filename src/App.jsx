@@ -1,4 +1,6 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logOutSuccess } from './features/authSlice';
 import {
     CustomersManagement,
     CategoriesManagement,
@@ -17,6 +19,8 @@ import {
 } from './pages/';
 
 import { ErrorElement } from './components';
+import { useEffect } from 'react';
+import { isTokenExpired } from './utils/helpers';
 
 const router = createBrowserRouter([
     {
@@ -88,12 +92,20 @@ const router = createBrowserRouter([
         errorElement: <ErrorElement />,
     },
 ]);
+
 function App() {
-    return (
-        <>
-            <RouterProvider router={router} />
-        </>
-    );
+    const dispatch = useDispatch();
+    const token = useSelector((state) => state.auth.loginAdmin?.token);
+    useEffect(() => {
+        if (token) {
+            const expire = isTokenExpired(token);
+            console.log(expire);
+            if (expire) {
+                dispatch(logOutSuccess());
+            }
+        }
+    }, []);
+    return <RouterProvider router={router} />;
 }
 
 export default App;
