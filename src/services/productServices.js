@@ -19,6 +19,15 @@ const productServices = {
             },
         });
     },
+    updateProduct(accessToken, id, formData) {
+        const url = `/admin/product/${id}`;
+        return axiosClient.put(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+    },
     deleteProduct(accessToken, id) {
         const url = `/admin/product/${id}`;
         return axiosClient.delete(url, {

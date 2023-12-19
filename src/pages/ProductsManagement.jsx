@@ -140,16 +140,38 @@ const ProductsManagement = () => {
     // Form submission handler
     const handleSubmit = async (values) => {
         if (isUpdateMode) {
+            setIsLoading(true);
             if (selectedProductId) {
                 try {
                     closeDialog();
-                    const formData = new FormData();
-                    formData.append('name', values.name);
-                    formData.append('image', values.file);
+                    const productInfo = {
+                        name: values.name,
+                        price: values.price,
+                        salePrice: values.salePrice,
+                        description: values.description,
+                        size: values.size,
+                        material: values.material,
+                        inStock: values.inStock,
+                        featured: values.featured,
+                        categoryId: values.categoryId,
+                        collectionId: values.collectionId,
+                    };
 
-                    const resp = await productServices.getAllProducts(token);
-                    document.getElementById('dialog').close();
+                    const json = JSON.stringify(productInfo);
+                    const blob = new Blob([json], {
+                        type: 'application/json',
+                    });
+                    var formData = new FormData();
+
+                    formData.append('info', blob);
+                    formData.append('thumbnail', values.thumbnail);
+                    for (let i = 0; i < values.images.length; i++) {
+                        formData.append('images', values.images[i]);
+                    }
+                    const resp = await productServices.updateProduct(token, selectedProductId, formData);
+
                     if (resp.status === 'OK') {
+                        setIsLoading(false);
                         toast.success(resp.messages[0]);
                         setIsLoading(false);
                         fetchData();
