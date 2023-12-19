@@ -130,13 +130,24 @@ const DiscountsManagement = () => {
         setIsLoading(true);
         if (isUpdateMode) {
             try {
-                // const resp = await categoryServices.updateCategory(token, selectedCategoryId, formData);
-                // toast.success(resp.messages[0]);
-                // closeDialog();
-                // // After a successful update, fetch the latest data and update the state
-                // const updatedData = await categoryServices.getAllCategories();
-                // setIsLoading(false);
-                // setData(updatedData.data);
+                closeDialog();
+                const resp = await couponServices.updateCoupon(
+                    token,
+                    selectedCouponId,
+                    values.code,
+                    values.value,
+                    values.description,
+                    values.minOrderValue,
+                    values.maxDiscount,
+                    values.times,
+                    values.beginDate,
+                    values.endDate,
+                );
+                if (resp.status === 'OK') {
+                    toast.success(resp.messages[0]);
+                    setIsLoading(false);
+                    fetchData();
+                }
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.messages) {
                     const errorMessages = error.response.data.messages;

@@ -11,15 +11,17 @@ import { PiTargetLight } from 'react-icons/pi';
 import { useSelector } from 'react-redux';
 import { BsSearchHeart } from 'react-icons/bs';
 import PreviewImage from '../utils/helpers';
-import { formatPrice, formatDate } from '../utils/helpers';
+import { formatPrice } from '../utils/helpers';
+import categoryServices from '../services/categoryServices';
+import collectionServices from '../services/collectionServices';
 
 const ProductsManagement = () => {
     const navigate = useNavigate();
 
     const token = useSelector((state) => state.auth.loginAdmin?.token);
     const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
-    const categoryList = useSelector((state) => state.category.category?.currentCategory);
-    const collectionList = useSelector((state) => state.collection.collection?.currentCollection);
+    const [categoryList, setCategoryList] = useState([]);
+    const [collectionList, setCollectionList] = useState([]);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [pending, setPending] = useState(true);
@@ -38,8 +40,12 @@ const ProductsManagement = () => {
 
     const fetchData = async () => {
         try {
+            const respCate = await categoryServices.getAllCategories();
+            const resp = await collectionServices.getAllCollections();
             const respPro = await productServices.getAllProducts(token);
             setData(respPro.data);
+            setCollectionList(resp.data);
+            setCategoryList(respCate.data);
             setPending(false);
         } catch (error) {
             console.log(error);
