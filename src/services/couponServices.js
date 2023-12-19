@@ -30,6 +30,20 @@ const couponServices = {
             },
         });
     },
+    updateCoupon(accessToken, id, code, value, description, minOrderValue, maxDiscount, times, beginDate, endDate) {
+        const url = `/admin/coupon-code/${id}`;
+        return axiosClient.patch(
+            url,
+            { code, value, description, minOrderValue, maxDiscount, times, beginDate, endDate },
+            {
+                headers: {
+                    accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            },
+        );
+    },
 };
 
 export default couponServices;

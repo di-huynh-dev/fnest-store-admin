@@ -106,18 +106,22 @@ const ProductsManagement = () => {
         setIsUpdateMode(true);
         document.getElementById('dialog').showModal();
     };
-
+    const handleDeleteModal = (id) => {
+        document.getElementById('dialog_confirm').showModal();
+        setSelectedProductId(id);
+    };
     // Define handleDelete function
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
         setIsLoading(true);
         try {
-            const resp = await productServices.deleteProduct(token, id);
+            const resp = await productServices.deleteProduct(token, selectedProductId);
             if (resp.status === 'OK') {
                 toast.success(resp.messages[0]);
                 setIsLoading(false);
                 fetchData();
             }
         } catch (error) {
+            setIsLoading(false);
             if (error.response && error.response.data && error.response.data.messages) {
                 const errorMessages = error.response.data.messages;
                 toast.error(errorMessages.join(', '));
@@ -359,7 +363,12 @@ const ProductsManagement = () => {
                 <>
                     {user.role === 'ADMIN' && (
                         <>
-                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                            <button
+                                className="btn btn-outline btn-error mx-2"
+                                onClick={() => {
+                                    handleDeleteModal(row.id);
+                                }}
+                            >
                                 <Trash />
                             </button>
                             <button
@@ -384,6 +393,25 @@ const ProductsManagement = () => {
                 <Loading></Loading>
             ) : (
                 <>
+                    <dialog id="dialog_confirm" className="modal">
+                        <div className="modal-box max-w-lg">
+                            <h3 className="font-bold text-xl text-center">XÁC NHẬN XÓA DỮ LIỆU</h3>
+                            <form className="my-2" onSubmit={handleDelete}>
+                                <div
+                                    onClick={() => document.getElementById('dialog_confirm').close()}
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                >
+                                    X
+                                </div>
+                                <div className="text-center">
+                                    <p className="my-10">Bạn chắc chắn xóa dữ liệu này?</p>
+                                    <div className="flex items-center mt-3 text-center justify-center">
+                                        <SubmitButton text="Xóa dữ liệu" color="primary" />
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </dialog>
                     <dialog id="dialog" className="modal">
                         <div className="modal-box max-w-6xl">
                             <h3 className="font-bold text-2xl text-center">Thêm Sản phẩm mới</h3>

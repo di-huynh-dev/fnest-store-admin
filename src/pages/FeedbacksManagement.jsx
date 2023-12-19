@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
 import { FolderEdit, Trash } from 'lucide-react';
-import { FormInput, SubmitButton, Loading } from '../components';
+import { FormInput, SubmitButton, Loading, TableLoader } from '../components';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -14,7 +14,7 @@ const FeedbacksManagement = () => {
     const token = useSelector((state) => state.auth.loginAdmin?.token);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-
+    const [pending, setPending] = useState(true);
     useEffect(() => {
         if (!token) {
             navigate('/admin/auth/login');
@@ -23,6 +23,7 @@ const FeedbacksManagement = () => {
                 try {
                     const resp = await feedbackService.getAllFeedbacks(token);
                     setData(resp.data);
+                    setPending(false);
                 } catch (error) {
                     console.log(error);
                 }
@@ -126,6 +127,8 @@ const FeedbacksManagement = () => {
                             subHeaderComponent={subHeaderComponentMemo}
                             persistTableHead
                             expandableRows
+                            progressPending={pending}
+                            progressComponent={<TableLoader />}
                             expandableRowsComponent={ExpandedComponent}
                             customStyles={{
                                 table: {

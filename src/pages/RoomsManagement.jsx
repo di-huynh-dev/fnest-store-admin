@@ -105,12 +105,15 @@ const RoomsManagement = () => {
         setIsUpdateMode(true);
         document.getElementById('dialog').showModal();
     };
-
+    const handleDeleteModal = (id) => {
+        document.getElementById('dialog_confirm').showModal();
+        setIdRoom(id);
+    };
     // Handle Delete
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
         setIsLoading(true);
         try {
-            const resp = await roomServices.deleteRoom(token, id);
+            const resp = await roomServices.deleteRoom(token, idRoom);
             if (resp.status === 'OK') {
                 setIsLoading(false);
                 fetchData();
@@ -214,7 +217,12 @@ const RoomsManagement = () => {
                 <>
                     {user.role === 'ADMIN' && (
                         <>
-                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                            <button
+                                className="btn btn-outline btn-error mx-2"
+                                onClick={() => {
+                                    handleDeleteModal(row.id);
+                                }}
+                            >
                                 <Trash />
                             </button>
                             <button
@@ -234,64 +242,91 @@ const RoomsManagement = () => {
 
     return (
         <div className="mx-10 my-10">
-            {isLoading ? <Loading></Loading> : <></>}
-            <dialog id="dialog" className="modal">
-                <div className="modal-box max-w-2xl">
-                    <h3 className="font-bold text-2xl text-center">Danh mục phòng</h3>
-                    <form className="my-2" onSubmit={formik.handleSubmit}>
-                        <div onClick={closeDialog} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                            X
-                        </div>
-                        <div className="text-center space-x-10">
-                            <div>
-                                <FormInput
-                                    type="text"
-                                    label="Tên Phòng"
-                                    name="name"
-                                    placeholder="Nhập tên phòng..."
-                                    value={formik.values.name}
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.name && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
-                                )}
-                                <FormInput
-                                    type="file"
-                                    label="Hình ảnh"
-                                    name="file"
-                                    onchange={(e) => formik.setFieldValue('file', e.target.files[0])}
-                                />
-                                {formik.values.file && <PreviewImage file={formik.values.file} />}
-                                <div className="flex items-center mt-3 text-center justify-center">
-                                    <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} />
+            {isLoading ? (
+                <Loading></Loading>
+            ) : (
+                <>
+                    <dialog id="dialog_confirm" className="modal">
+                        <div className="modal-box max-w-lg">
+                            <h3 className="font-bold text-xl text-center">XÁC NHẬN XÓA DỮ LIỆU</h3>
+                            <form className="my-2" onSubmit={handleDelete}>
+                                <div
+                                    onClick={() => document.getElementById('dialog_confirm').close()}
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                >
+                                    X
                                 </div>
-                            </div>
+                                <div className="text-center">
+                                    <p className="my-10">Bạn chắc chắn xóa dữ liệu này?</p>
+                                    <div className="flex items-center mt-3 text-center justify-center">
+                                        <SubmitButton text="Xóa dữ liệu" color="primary" />
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
-            </dialog>
-            <DataTable
-                title="QUẢN LÝ DANH MỤC PHÒNG FNEST"
-                fixedHeader
-                fixedHeaderScrollHeight="550px"
-                direction="auto"
-                responsive
-                pagination
-                columns={columns}
-                data={filteredItems}
-                striped
-                subHeader
-                paginationResetDefaultPage={resetPaginationToggle}
-                subHeaderComponent={subHeaderComponentMemo}
-                persistTableHead
-                progressPending={pending}
-                progressComponent={<TableLoader />}
-                customStyles={{
-                    table: {
-                        fontSize: '30px',
-                    },
-                }}
-            />
+                    </dialog>
+                    <dialog id="dialog" className="modal">
+                        <div className="modal-box max-w-2xl">
+                            <h3 className="font-bold text-2xl text-center">Danh mục phòng</h3>
+                            <form className="my-2" onSubmit={formik.handleSubmit}>
+                                <div
+                                    onClick={closeDialog}
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                >
+                                    X
+                                </div>
+                                <div className="text-center space-x-10">
+                                    <div>
+                                        <FormInput
+                                            type="text"
+                                            label="Tên Phòng"
+                                            name="name"
+                                            placeholder="Nhập tên phòng..."
+                                            value={formik.values.name}
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.name && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
+                                        )}
+                                        <FormInput
+                                            type="file"
+                                            label="Hình ảnh"
+                                            name="file"
+                                            onchange={(e) => formik.setFieldValue('file', e.target.files[0])}
+                                        />
+                                        {formik.values.file && <PreviewImage file={formik.values.file} />}
+                                        <div className="flex items-center mt-3 text-center justify-center">
+                                            <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </dialog>
+                    <DataTable
+                        title="QUẢN LÝ DANH MỤC PHÒNG FNEST"
+                        fixedHeader
+                        fixedHeaderScrollHeight="550px"
+                        direction="auto"
+                        responsive
+                        pagination
+                        columns={columns}
+                        data={filteredItems}
+                        striped
+                        subHeader
+                        paginationResetDefaultPage={resetPaginationToggle}
+                        subHeaderComponent={subHeaderComponentMemo}
+                        persistTableHead
+                        progressPending={pending}
+                        progressComponent={<TableLoader />}
+                        customStyles={{
+                            table: {
+                                fontSize: '30px',
+                            },
+                        }}
+                    />
+                </>
+            )}
         </div>
     );
 };

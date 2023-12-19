@@ -102,11 +102,16 @@ const DiscountsManagement = () => {
         setIsUpdateMode(true);
         document.getElementById('dialog').showModal();
     };
+
+    const handleDeleteModal = (id) => {
+        document.getElementById('dialog_confirm').showModal();
+        setSelectedCouponId(id);
+    };
     // Define handleDelete function
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
         setIsLoading(true);
         try {
-            const resp = await couponServices.deleteCoupon(token, id);
+            const resp = await couponServices.deleteCoupon(token, selectedCouponId);
             if (resp.status === 'OK') {
                 setIsLoading(false);
                 toast.success(resp.messages[0]);
@@ -257,7 +262,12 @@ const DiscountsManagement = () => {
                     {' '}
                     {user.role === 'ADMIN' && (
                         <>
-                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                            <button
+                                className="btn btn-outline btn-error mx-2"
+                                onClick={() => {
+                                    handleDeleteModal(row.id);
+                                }}
+                            >
                                 <Trash />
                             </button>
                             <button
@@ -304,136 +314,165 @@ const DiscountsManagement = () => {
 
     return (
         <div className="m-10">
-            {isLoading ? <Loading></Loading> : <></>}
-            <dialog id="dialog" className="modal">
-                <div className="modal-box max-w-2xl">
-                    <h3 className="font-bold text-2xl text-center">Danh mục mã giảm giá</h3>
-                    <form className="my-2" onSubmit={formik.handleSubmit}>
-                        <div onClick={closeDialog} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                            X
-                        </div>
-                        <div className=" space-x-10">
-                            <div>
-                                <FormInput
-                                    type="text"
-                                    label="Mã giảm"
-                                    name="code"
-                                    value={formik.values.code}
-                                    placeholder="Nhập mã giảm..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.code && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.code}</span>
-                                )}
-                                <FormInput
-                                    type="text"
-                                    label="Phần trăm giảm"
-                                    name="value"
-                                    value={formik.values.value}
-                                    placeholder="Nhập phần trăm giảm..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.value && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.value}</span>
-                                )}
-                                <FormInput
-                                    type="text"
-                                    label="Mô tả"
-                                    name="description"
-                                    value={formik.values.description}
-                                    placeholder="Nhập mô tả..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.description && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.description}</span>
-                                )}
-                                <FormInput
-                                    type="text"
-                                    label="Giá trị tối thiểu của đơn hàng"
-                                    name="minOrderValue"
-                                    value={formik.values.minOrderValue}
-                                    placeholder="Nhập giá trị đơn tối thiểu..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.minOrderValue && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.minOrderValue}</span>
-                                )}
-                                <FormInput
-                                    type="text"
-                                    label="Số tiền tối đa giảm được"
-                                    name="maxDiscount"
-                                    value={formik.values.maxDiscount}
-                                    placeholder="Nhập số tiền tối đa..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.maxDiscount && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.maxDiscount}</span>
-                                )}
-                                <FormInput
-                                    type="text"
-                                    label="Số lần giảm"
-                                    name="times"
-                                    placeholder="Nhập số lần..."
-                                    value={formik.values.times}
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.times && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.times}</span>
-                                )}
-                                <FormInput
-                                    type="date"
-                                    label="Ngày bắt đầu"
-                                    name="beginDate"
-                                    value={formik.values.beginDate}
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.beginDate && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.beginDate}</span>
-                                )}
-                                <FormInput
-                                    type="date"
-                                    label="Ngày kết thúc"
-                                    name="endDate"
-                                    value={formik.values.endDate}
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.endDate && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.endDate}</span>
-                                )}
-
-                                <div className="flex items-center mt-3 text-center justify-center">
-                                    <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
+            {isLoading ? (
+                <Loading></Loading>
+            ) : (
+                <>
+                    <dialog id="dialog_confirm" className="modal">
+                        <div className="modal-box max-w-lg">
+                            <h3 className="font-bold text-xl text-center">XÁC NHẬN XÓA DỮ LIỆU</h3>
+                            <form className="my-2" onSubmit={handleDelete}>
+                                <div
+                                    onClick={() => document.getElementById('dialog_confirm').close()}
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                >
+                                    X
                                 </div>
-                            </div>
+                                <div className="text-center">
+                                    <p className="my-10">Bạn chắc chắn xóa dữ liệu này?</p>
+                                    <div className="flex items-center mt-3 text-center justify-center">
+                                        <SubmitButton text="Xóa dữ liệu" color="primary" />
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
-            </dialog>
-            <DataTable
-                title="QUẢN LÝ MÃ GIẢM GIÁ FNEST"
-                fixedHeader
-                fixedHeaderScrollHeight="550px"
-                direction="auto"
-                responsive
-                pagination
-                columns={columns}
-                data={data}
-                highlightOnHover
-                striped
-                subHeader
-                paginationResetDefaultPage={resetPaginationToggle}
-                subHeaderComponent={subHeaderComponentMemo}
-                persistTableHead
-                expandableRows
-                expandableRowsComponent={ExpandedComponent}
-                progressPending={pending}
-                progressComponent={<TableLoader />}
-                customStyles={{
-                    table: {
-                        fontSize: '30px',
-                    },
-                }}
-            />
+                    </dialog>
+                    <dialog id="dialog" className="modal">
+                        <div className="modal-box max-w-2xl">
+                            <h3 className="font-bold text-2xl text-center">Danh mục mã giảm giá</h3>
+                            <form className="my-2" onSubmit={formik.handleSubmit}>
+                                <div
+                                    onClick={closeDialog}
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                >
+                                    X
+                                </div>
+                                <div className=" space-x-10">
+                                    <div>
+                                        <FormInput
+                                            type="text"
+                                            label="Mã giảm"
+                                            name="code"
+                                            value={formik.values.code}
+                                            placeholder="Nhập mã giảm..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.code && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.code}</span>
+                                        )}
+                                        <FormInput
+                                            type="text"
+                                            label="Phần trăm giảm"
+                                            name="value"
+                                            value={formik.values.value}
+                                            placeholder="Nhập phần trăm giảm..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.value && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.value}</span>
+                                        )}
+                                        <FormInput
+                                            type="text"
+                                            label="Mô tả"
+                                            name="description"
+                                            value={formik.values.description}
+                                            placeholder="Nhập mô tả..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.description && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.description}</span>
+                                        )}
+                                        <FormInput
+                                            type="text"
+                                            label="Giá trị tối thiểu của đơn hàng"
+                                            name="minOrderValue"
+                                            value={formik.values.minOrderValue}
+                                            placeholder="Nhập giá trị đơn tối thiểu..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.minOrderValue && (
+                                            <span className="text-error text-sm p-1 ">
+                                                {formik.errors.minOrderValue}
+                                            </span>
+                                        )}
+                                        <FormInput
+                                            type="text"
+                                            label="Số tiền tối đa giảm được"
+                                            name="maxDiscount"
+                                            value={formik.values.maxDiscount}
+                                            placeholder="Nhập số tiền tối đa..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.maxDiscount && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.maxDiscount}</span>
+                                        )}
+                                        <FormInput
+                                            type="text"
+                                            label="Số lần giảm"
+                                            name="times"
+                                            placeholder="Nhập số lần..."
+                                            value={formik.values.times}
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.times && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.times}</span>
+                                        )}
+                                        <FormInput
+                                            type="date"
+                                            label="Ngày bắt đầu"
+                                            name="beginDate"
+                                            value={formik.values.beginDate}
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.beginDate && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.beginDate}</span>
+                                        )}
+                                        <FormInput
+                                            type="date"
+                                            label="Ngày kết thúc"
+                                            name="endDate"
+                                            value={formik.values.endDate}
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.endDate && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.endDate}</span>
+                                        )}
+
+                                        <div className="flex items-center mt-3 text-center justify-center">
+                                            <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </dialog>
+                    <DataTable
+                        title="QUẢN LÝ MÃ GIẢM GIÁ FNEST"
+                        fixedHeader
+                        fixedHeaderScrollHeight="550px"
+                        direction="auto"
+                        responsive
+                        pagination
+                        columns={columns}
+                        data={data}
+                        highlightOnHover
+                        striped
+                        subHeader
+                        paginationResetDefaultPage={resetPaginationToggle}
+                        subHeaderComponent={subHeaderComponentMemo}
+                        persistTableHead
+                        expandableRows
+                        expandableRowsComponent={ExpandedComponent}
+                        progressPending={pending}
+                        progressComponent={<TableLoader />}
+                        customStyles={{
+                            table: {
+                                fontSize: '30px',
+                            },
+                        }}
+                    />
+                </>
+            )}
         </div>
     );
 };

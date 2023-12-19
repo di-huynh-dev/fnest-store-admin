@@ -293,7 +293,7 @@ const UsersManagement = () => {
             ) : (
                 <>
                     <dialog id="dialog_update" className="modal">
-                        <div className="modal-box max-w-2xl">
+                        <div className="modal-box max-w-lg">
                             <h3 className="font-bold text-2xl text-center">CẬP NHẬT TRẠNG THÁI NGƯỜI DÙNG</h3>
                             <form className="my-2" onSubmit={confirmStatusUpdate}>
                                 <div

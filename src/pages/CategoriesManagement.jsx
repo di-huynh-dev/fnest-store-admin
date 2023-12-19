@@ -106,12 +106,15 @@ const CategoriesManagement = () => {
         setIsUpdateMode(true);
         document.getElementById('dialog').showModal();
     };
-
+    const handleDeleteModal = (id) => {
+        document.getElementById('dialog_confirm').showModal();
+        setSelectedCategoryId(id);
+    };
     // Define handleDelete function
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
         setIsLoading(true);
         try {
-            const resp = await categoryServices.deleteCategory(token, id);
+            const resp = await categoryServices.deleteCategory(token, selectedCategoryId);
             setIsLoading(false);
             if (resp.status === 'OK') {
                 toast.success(resp.messages[0]);
@@ -223,7 +226,12 @@ const CategoriesManagement = () => {
                 <>
                     {user.role === 'ADMIN' && (
                         <>
-                            <button className="btn btn-outline btn-error mx-2" onClick={() => handleDelete(row.id)}>
+                            <button
+                                className="btn btn-outline btn-error mx-2"
+                                onClick={() => {
+                                    handleDeleteModal(row.id);
+                                }}
+                            >
                                 <Trash />
                             </button>
                             <button
@@ -243,87 +251,116 @@ const CategoriesManagement = () => {
 
     return (
         <div className="mx-10 my-10">
-            {isLoading ? <Loading></Loading> : <></>}
-            <dialog id="dialog" className="modal">
-                <div className="modal-box max-w-2xl">
-                    <h3 className="font-bold text-2xl text-center">Danh mục sản phẩm</h3>
-                    <form className="my-2" onSubmit={formik.handleSubmit}>
-                        <div onClick={closeDialog} className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                            X
-                        </div>
-                        <div className=" space-x-10">
-                            <div>
-                                <FormInput
-                                    type="text"
-                                    label="Tên Danh mục"
-                                    name="name"
-                                    value={formik.values.name}
-                                    placeholder="Nhập tên danh muc..."
-                                    onchange={formik.handleChange}
-                                />
-                                {formik.errors.name && (
-                                    <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
-                                )}
-                                <div className="my-4">
-                                    <label className="block text-sm">Chọn Phòng</label>
-                                    <select
-                                        name="room"
-                                        value={selectedRoomId}
-                                        onChange={(e) => setSelectedRoomId(e.target.value)}
-                                        className="select select-bordered  mt-1 p-2  rounded-md w-full"
-                                    >
-                                        <option value="">-- Chọn phòng --</option>
-                                        {rooms.map((room) => (
-                                            <option key={room.id} value={room.id}>
-                                                {room.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {selectedRoomId === '' && (
-                                        <p className="text-error text-sm p-1">Vui lòng chọn phòng!</p>
-                                    )}
+            {isLoading ? (
+                <Loading></Loading>
+            ) : (
+                <>
+                    <dialog id="dialog_confirm" className="modal">
+                        <div className="modal-box max-w-lg">
+                            <h3 className="font-bold text-xl text-center">XÁC NHẬN XÓA DỮ LIỆU</h3>
+                            <form className="my-2" onSubmit={handleDelete}>
+                                <div
+                                    onClick={() => document.getElementById('dialog_confirm').close()}
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                >
+                                    X
                                 </div>
-
-                                <FormInput
-                                    type="file"
-                                    label="Hình ảnh"
-                                    name="file"
-                                    onchange={(e) => formik.setFieldValue('file', e.target.files[0])}
-                                />
-                                {formik.errors.file && <p className="text-error text-sm p-1">{formik.errors.file}</p>}
-                                {formik.values.file && <PreviewImage file={formik.values.file} />}
-
-                                <div className="flex items-center mt-3 text-center justify-center">
-                                    <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
+                                <div className="text-center">
+                                    <p className="my-10">Bạn chắc chắn xóa dữ liệu này?</p>
+                                    <div className="flex items-center mt-3 text-center justify-center">
+                                        <SubmitButton text="Xóa dữ liệu" color="primary" />
+                                    </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
-            </dialog>
-            <DataTable
-                title="QUẢN LÝ DANH MỤC FNEST"
-                fixedHeader
-                fixedHeaderScrollHeight="550px"
-                direction="auto"
-                responsive
-                pagination
-                columns={columns}
-                data={filteredItems}
-                highlightOnHover
-                striped
-                subHeader
-                paginationResetDefaultPage={resetPaginationToggle}
-                subHeaderComponent={subHeaderComponentMemo}
-                persistTableHead
-                progressPending={pending}
-                progressComponent={<TableLoader />}
-                customStyles={{
-                    table: {
-                        fontSize: '30px',
-                    },
-                }}
-            />
+                    </dialog>
+                    <dialog id="dialog" className="modal">
+                        <div className="modal-box max-w-2xl">
+                            <h3 className="font-bold text-2xl text-center">Danh mục sản phẩm</h3>
+                            <form className="my-2" onSubmit={formik.handleSubmit}>
+                                <div
+                                    onClick={closeDialog}
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                >
+                                    X
+                                </div>
+                                <div className=" space-x-10">
+                                    <div>
+                                        <FormInput
+                                            type="text"
+                                            label="Tên Danh mục"
+                                            name="name"
+                                            value={formik.values.name}
+                                            placeholder="Nhập tên danh muc..."
+                                            onchange={formik.handleChange}
+                                        />
+                                        {formik.errors.name && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.name}</span>
+                                        )}
+                                        <div className="my-4">
+                                            <label className="block text-sm">Chọn Phòng</label>
+                                            <select
+                                                name="room"
+                                                value={selectedRoomId}
+                                                onChange={(e) => setSelectedRoomId(e.target.value)}
+                                                className="select select-bordered  mt-1 p-2  rounded-md w-full"
+                                            >
+                                                <option value="">-- Chọn phòng --</option>
+                                                {rooms.map((room) => (
+                                                    <option key={room.id} value={room.id}>
+                                                        {room.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {selectedRoomId === '' && (
+                                                <p className="text-error text-sm p-1">Vui lòng chọn phòng!</p>
+                                            )}
+                                        </div>
+
+                                        <FormInput
+                                            type="file"
+                                            label="Hình ảnh"
+                                            name="file"
+                                            onchange={(e) => formik.setFieldValue('file', e.target.files[0])}
+                                        />
+                                        {formik.errors.file && (
+                                            <p className="text-error text-sm p-1">{formik.errors.file}</p>
+                                        )}
+                                        {formik.values.file && <PreviewImage file={formik.values.file} />}
+
+                                        <div className="flex items-center mt-3 text-center justify-center">
+                                            <SubmitButton text={isUpdateMode ? 'Cập nhật' : 'Thêm'} color="primary" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </dialog>
+                    <DataTable
+                        title="QUẢN LÝ DANH MỤC FNEST"
+                        fixedHeader
+                        fixedHeaderScrollHeight="550px"
+                        direction="auto"
+                        responsive
+                        pagination
+                        columns={columns}
+                        data={filteredItems}
+                        highlightOnHover
+                        striped
+                        subHeader
+                        paginationResetDefaultPage={resetPaginationToggle}
+                        subHeaderComponent={subHeaderComponentMemo}
+                        persistTableHead
+                        progressPending={pending}
+                        progressComponent={<TableLoader />}
+                        customStyles={{
+                            table: {
+                                fontSize: '30px',
+                            },
+                        }}
+                    />
+                </>
+            )}
         </div>
     );
 };
