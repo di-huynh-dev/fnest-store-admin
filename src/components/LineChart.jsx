@@ -18,7 +18,7 @@ const LineChart = ({ data }) => {
         labels: data.numOfOrderByDays.map((item) => item.date),
         datasets: [
             {
-                label: 'Số lượng đơn hàng',
+                label: 'Doanh thu theo ngày trong tháng (triệu đồng)',
                 data: data.incomeByDays.map((item) => item.incomeByDay),
                 borderColor: 'rgb(255, 99, 132)',
                 backgroundColor: 'rgba(255, 99, 132, 0.5)',

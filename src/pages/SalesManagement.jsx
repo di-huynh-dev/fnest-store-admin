@@ -1,4 +1,4 @@
-import { LineChart, BarChart, Loading } from '../components';
+import { LineChart, BarChart, TableLoader } from '../components';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -51,7 +51,7 @@ const SalesManagement = () => {
     return (
         <>
             {isLoading ? (
-                <Loading />
+                <TableLoader />
             ) : (
                 <div className="m-10">
                     <div className="flex items-center justify-end">

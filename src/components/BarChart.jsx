@@ -26,7 +26,7 @@ const BarChart = ({ data }) => {
             },
             title: {
                 display: true,
-                text: 'Thống kê số lượng đơn hàng theo tháng/năm',
+                text: 'Thống kê số lượng đơn hàng theo ngày trong tháng',
             },
         },
         scales: {
