@@ -237,12 +237,12 @@ const ProductsManagement = () => {
             name: '',
             thumbnail: '',
             images: [],
-            price: '',
-            salePrice: '',
+            price: 0,
+            salePrice: 0,
             description: '',
             size: '',
             material: '',
-            inStock: '',
+            inStock: 0,
             featured: false,
             categoryId: '',
             collectionId: '',
@@ -251,11 +251,12 @@ const ProductsManagement = () => {
             name: Yup.string().required('Vui lòng nhập thông tin!'),
             thumbnail: Yup.mixed().required('Vui lòng tải lên hình ảnh!'),
             images: Yup.mixed().required('Vui lòng tải lên hình ảnh!'),
-            price: Yup.string().required('Vui lòng nhập thông tin!'),
+            price: Yup.number().required('Vui lòng nhập thông tin!').min(0, 'Giá sản phẩm không được âm'),
+            salePrice: Yup.number().min(0, 'Giá sản phẩm không được âm'),
             description: Yup.string().required('Vui lòng nhập thông tin!'),
             size: Yup.string().required('Vui lòng nhập thông tin!'),
             material: Yup.string().required('Vui lòng nhập thông tin!'),
-            inStock: Yup.string().required('Vui lòng nhập thông tin!'),
+            inStock: Yup.number().required('Vui lòng nhập thông tin!').min(1, 'Số lượng lớn hơn 0'),
             featured: Yup.boolean().required('Vui lòng nhập thông tin!'),
         }),
         onSubmit: handleSubmit,
@@ -481,6 +482,7 @@ const ProductsManagement = () => {
                                                 type="text"
                                                 label="Số lượng trong kho"
                                                 name="inStock"
+                                                value={formik.values.inStock}
                                                 placeholder="Số lượng còn..."
                                                 onchange={formik.handleChange}
                                             />
@@ -525,6 +527,7 @@ const ProductsManagement = () => {
                                             type="text"
                                             label="Giá gốc"
                                             name="price"
+                                            value={formik.values.price}
                                             placeholder="Giá gốc..."
                                             onchange={formik.handleChange}
                                         />
@@ -577,10 +580,13 @@ const ProductsManagement = () => {
                                             type="text"
                                             label="Giá giảm"
                                             name="salePrice"
+                                            value={formik.values.salePrice}
                                             placeholder="Nhập giá giảm..."
                                             onchange={formik.handleChange}
                                         />
-
+                                        {formik.errors.salePrice && (
+                                            <span className="text-error text-sm p-1 ">{formik.errors.salePrice}</span>
+                                        )}
                                         <FormInput
                                             type="text"
                                             label="Mô tả sản phẩm"
