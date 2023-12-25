@@ -16,6 +16,7 @@ import {
     DiscountsManagement,
     NewsManagement,
     FeedbacksManagement,
+    Landing,
 } from './pages/';
 
 import { ErrorElement } from './components';
@@ -30,6 +31,11 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
+                element: <Landing />,
+                errorElement: <ErrorElement />,
+            },
+            {
+                path: 'admin/sales',
                 element: <SalesManagement />,
                 errorElement: <ErrorElement />,
             },

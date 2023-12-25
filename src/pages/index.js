@@ -12,3 +12,4 @@ export { default as CollectionsManagement } from './CollectionsManagement';
 export { default as DiscountsManagement } from './DiscountsManagement';
 export { default as NewsManagement } from './NewsManagement';
 export { default as FeedbacksManagement } from './FeedbacksManagement';
+export { default as Landing } from './Landing';

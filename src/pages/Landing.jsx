@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import statisticServices from '../services/statisticServices';
 import { MdTableRestaurant } from 'react-icons/md';
-import { AiOutlineDollarCircle } from 'react-icons/ai';
 import { BsCartCheck } from 'react-icons/bs';
 import { BiUserPlus } from 'react-icons/bi';
-import { formatPrice } from '../utils/helpers';
+import { FaFirstOrderAlt } from 'react-icons/fa';
 
-const SalesManagement = () => {
+const Landing = () => {
     const navigate = useNavigate();
     const token = useSelector((state) => state.auth.loginAdmin?.token);
+    const user = useSelector((state) => state.auth.loginAdmin?.currentUser);
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedMonth, setSelectedMonth] = useState(12);
@@ -32,8 +32,8 @@ const SalesManagement = () => {
     };
 
     useEffect(() => {
-        if (!token) {
-            navigate('/admin/auth/login');
+        if (!token || user.role != 'ADMIN') {
+            navigate('/admin/orders');
         } else {
             fetchAndUpdateData(selectedMonth, selectedYear);
         }
@@ -93,22 +93,68 @@ const SalesManagement = () => {
                         </select>
                     </div>
                     <div className="grid grid-cols-4 justify-around gap-2 my-5">
+                        <div className="card card-side bg-base-100">
+                            <div className="mx-2">
+                                <div className="grid grid-cols-2 items-center space-x-10">
+                                    <div>
+                                        <h3>Tổng đơn</h3>
+                                        <span className="text-3xl font-bold">{data.numOfOrderByMonth}</span>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <BsCartCheck className="w-20 h-20 text-blue-400" />
+                                    </div>
+                                </div>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div className="card card-side bg-base-100">
+                            <div className="mx-2">
+                                <div className="grid grid-cols-2 items-center space-x-10">
+                                    <div>
+                                        <h3>Tổng SP bán ra</h3>
+                                        <span className="text-3xl font-bold">{data.soldProduct}</span>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <MdTableRestaurant className="w-20 h-20 text-green-400" />
+                                    </div>
+                                </div>
+                                <div></div>
+                            </div>
+                        </div>
+
                         <div className="card card-side bg-base-100 ">
                             <div className="mx-2">
                                 <div className="grid grid-cols-2 items-center space-x-10">
                                     <div>
-                                        <h3>Tổng doanh thu</h3>
-                                        <span className="text-3xl font-bold">{formatPrice(data.income)}</span>
+                                        <h3>Sản phẩm bán chạy</h3>
+                                        <span className="text-xl font-bold">{data.productOfTheMonth.name}</span>
                                     </div>
                                     <div className="flex justify-end">
-                                        <AiOutlineDollarCircle className="w-20 h-20 text-yellow-400" />
+                                        <FaFirstOrderAlt className="w-20 h-20 text-yellow-400" />
+                                    </div>
+                                </div>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div className="card card-side bg-base-100 ">
+                            <div className="mx-2">
+                                <div className="grid grid-cols-2 items-center space-x-10">
+                                    <div>
+                                        <h3>Tổng người dùng </h3>
+                                        <span className="text-3xl font-bold">{data.numOfUser}</span>
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <BiUserPlus className="w-20 h-20 text-red-400" />
                                     </div>
                                 </div>
                                 <div></div>
                             </div>
                         </div>
                     </div>
-                    <div>
+                    <div className="">
+                        <div className="rounded-md border w-full py-4 justify-center bg-white">
+                            <BarChart data={data} />
+                        </div>
                         <div className="rounded-md border w-full py-4 justify-center bg-white">
                             <LineChart data={data} />
                         </div>
@@ -119,4 +165,4 @@ const SalesManagement = () => {
     );
 };
 
-export default SalesManagement;
+export default Landing;

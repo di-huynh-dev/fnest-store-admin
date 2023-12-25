@@ -48,27 +48,30 @@ const Sidebar = () => {
     const navlinks = [
         {
             title: 'Dashboard',
-            items: [{ id: 1, link: t('sales'), icon: <LucideBadgeDollarSign />, to: '' }],
+            items: [
+                { id: 1, link: t('dashboard'), icon: <BarChart />, to: '' },
+                { id: 2, link: t('sales'), icon: <LucideBadgeDollarSign />, to: 'admin/sales' },
+            ],
         },
         {
             title: 'Collections & Rooms',
             items: [
-                { id: 2, link: t('collections'), icon: <SunSnow />, to: 'admin/collections' },
-                { id: 3, link: t('rooms'), icon: <DoorOpen />, to: 'admin/rooms' },
+                { id: 3, link: t('collections'), icon: <SunSnow />, to: 'admin/collections' },
+                { id: 4, link: t('rooms'), icon: <DoorOpen />, to: 'admin/rooms' },
             ],
         },
 
         {
             title: 'Products',
             items: [
-                { id: 4, link: t('categories'), icon: <MenuSquare />, to: 'admin/categories' },
-                { id: 5, link: t('products'), icon: <ShoppingBasket />, to: 'admin/products' },
-                { id: 6, link: t('discounts'), icon: <BadgePercent />, to: 'admin/discounts' },
+                { id: 5, link: t('categories'), icon: <MenuSquare />, to: 'admin/categories' },
+                { id: 6, link: t('products'), icon: <ShoppingBasket />, to: 'admin/products' },
+                { id: 7, link: t('discounts'), icon: <BadgePercent />, to: 'admin/discounts' },
             ],
         },
         {
             title: 'Orders',
-            items: [{ id: 7, link: t('orders'), icon: <ListOrdered />, to: 'admin/orders' }],
+            items: [{ id: 8, link: t('orders'), icon: <ListOrdered />, to: 'admin/orders' }],
         },
         {
             title: 'Users',
