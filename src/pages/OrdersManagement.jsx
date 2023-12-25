@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DataTable from 'react-data-table-component';
-import { SubmitButton, FormInput, Loading, TableLoader } from '../components';
+import { Loading, TableLoader } from '../components';
 import { useNavigate } from 'react-router-dom';
 import orderServices from '../services/orderServices';
-import { FolderEdit, Trash } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux';
+import { FolderEdit } from 'lucide-react';
+import { useSelector } from 'react-redux';
 import { formatPrice, formatDate } from '../utils/helpers';
 import { toast } from 'react-toastify';
 
@@ -16,6 +16,7 @@ const OrdersManagement = () => {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedOrderStatus, setSelectedOrderStatus] = useState('');
+    const [orderStatusCounts, setOrderStatusCounts] = useState({});
     const [pending, setPending] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [activeTab, setActiveTab] = useState('all');
@@ -32,10 +33,23 @@ const OrdersManagement = () => {
     const fetchData = async () => {
         try {
             const resp = await orderServices.getAllOrders(token);
-            if (resp.status == 'OK') {
-                setData(resp.data);
-                setPending(false);
+            setData(resp.data);
+
+            const countStatusNum = {
+                PENDING: 0,
+                CONFIRMED: 0,
+                IN_SHIPPING: 0,
+                COMPLETED: 0,
+                REVIEWED: 0,
+                CANCELED: 0,
+            };
+
+            for (const order of resp.data) {
+                const status = order.status;
+                countStatusNum[status] += 1;
             }
+            setOrderStatusCounts(countStatusNum);
+            setPending(false);
         } catch (error) {
             console.log(error);
         }
@@ -47,54 +61,57 @@ const OrdersManagement = () => {
     const subHeaderComponentMemo = useMemo(() => {
         return (
             <div className="flex items-center flex-auto">
-                <div role="tablist" className="flex-start tabs tabs-bordered">
-                    <button
-                        onClick={() => setActiveTab('all')}
-                        className={`tab ${activeTab === 'all' ? 'tab-active' : ''}`}
-                    >
-                        Tất cả
-                    </button>
+                <div role="tablist" className="tabs tabs-bordered my-2 border-b-[1px]">
                     <button
                         onClick={() => setActiveTab('PENDING')}
                         className={`tab ${activeTab === 'PENDING' ? 'tab-active' : ''}`}
                     >
-                        Chờ xác nhận
+                        Chờ xác nhận ({orderStatusCounts['PENDING']})
                     </button>
                     <button
                         onClick={() => setActiveTab('CONFIRMED')}
                         className={`tab ${activeTab === 'CONFIRMED' ? 'tab-active' : ''}`}
                     >
-                        Đã xác nhận
+                        Đã xác nhận ({orderStatusCounts['CONFIRMED']})
                     </button>
                     <button
                         onClick={() => setActiveTab('IN_SHIPPING')}
                         className={`tab ${activeTab === 'IN_SHIPPING' ? 'tab-active' : ''}`}
                     >
-                        Đang giao
+                        Đang giao ({orderStatusCounts['IN_SHIPPING']})
                     </button>
                     <button
                         onClick={() => setActiveTab('COMPLETED')}
                         className={`tab ${activeTab === 'COMPLETED' ? 'tab-active' : ''}`}
                     >
-                        Đã giao
+                        Đã giao ({orderStatusCounts['COMPLETED']})
                     </button>
                     <button
                         onClick={() => setActiveTab('REVIEWED')}
                         className={`tab ${activeTab === 'REVIEWED' ? 'tab-active' : ''}`}
                     >
-                        Đã hoàn thành
+                        Đã hoàn thành ({orderStatusCounts['REVIEWED']})
                     </button>
                     <button
                         onClick={() => setActiveTab('CANCELED')}
                         className={`tab ${activeTab === 'CANCELED' ? 'tab-active' : ''}`}
                     >
-                        Đã hủy
+                        Đã hủy ({orderStatusCounts['CANCELED']})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('all')}
+                        className={`tab ${activeTab === 'all' ? 'tab-active' : ''}`}
+                    >
+                        Tất cả ({data.length})
                     </button>
                 </div>
             </div>
         );
-    }, [filterText, resetPaginationToggle]);
-
+    }, [filterText, activeTab, resetPaginationToggle, orderStatusCounts]);
+    const sortedOrders = useMemo(() => {
+        // Sort the orders by ID in descending order
+        return [...filteredOrders].sort((a, b) => b.id - a.id);
+    }, [filteredOrders]);
     const closeDialog = () => {
         document.getElementById('dialog').close();
         setIsConfirmationDialogOpen(false);
@@ -302,7 +319,7 @@ const OrdersManagement = () => {
                         responsive
                         pagination
                         columns={columns}
-                        data={filteredOrders}
+                        data={sortedOrders}
                         highlightOnHover
                         striped
                         subHeader
