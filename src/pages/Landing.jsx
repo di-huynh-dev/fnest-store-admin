@@ -127,7 +127,7 @@ const Landing = () => {
                                 <div className="grid grid-cols-2 items-center space-x-10">
                                     <div>
                                         <h3>Sản phẩm bán chạy</h3>
-                                        <span className="text-xl font-bold">{data.productOfTheMonth.name}</span>
+                                        <span className="text-xl font-bold">{data.productOfTheMonth?.name}</span>
                                     </div>
                                     <div className="flex justify-end">
                                         <FaFirstOrderAlt className="w-20 h-20 text-yellow-400" />
